@@ -2,14 +2,14 @@ const flagMap = {
 	global: 'g',
 	ignoreCase: 'i',
 	multiline: 'm',
-	sticky: 'y',
 	dotAll: 's',
+	sticky: 'y',
 	unicode: 'u',
 } as const
 
-export type RegExOptions = Partial<Record<keyof typeof flagMap, boolean>>
+export type RegexOptions = Partial<Record<keyof typeof flagMap, boolean>>
 
-const _regex = (options: string | RegExOptions = {}) => (
+const _regex = (options: string | RegexOptions = {}) => (
 	template: TemplateStringsArray,
 	...substitutions: any[]
 ) => {
@@ -58,9 +58,9 @@ const _regex = (options: string | RegExOptions = {}) => (
 	if (typeof options === 'string') {
 		flags = options
 	} else {
-		Object.entries(options).forEach(([k, v]) => {
-			if (v) {
-				flags += flagMap[k as keyof RegExOptions]
+		Object.entries(flagMap).forEach(([k, v]) => {
+			if (options[k as keyof RegexOptions]) {
+				flags += v
 			}
 		})
 	}
@@ -69,7 +69,7 @@ const _regex = (options: string | RegExOptions = {}) => (
 }
 
 export default function regex(
-	options?: string | RegExOptions,
+	options?: string | RegexOptions,
 ): (template: TemplateStringsArray, ...substitutions: any[]) => RegExp
 export default function regex(
 	template: TemplateStringsArray,
