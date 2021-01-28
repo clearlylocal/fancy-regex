@@ -16,7 +16,33 @@ const _regex = (options: string | RegExOptions = {}) => (
 	let source = ''
 
 	template.raw.forEach((segment, idx) => {
-		source += segment.replace(/\s+|#.+/g, '')
+		source += segment
+			// remove comments following unescaped #
+			.replace(/(\\+|^|[^\\])#.*/g, (m, before) => {
+				// if odd number of backslashes, one of them is esc char
+				if (before.includes('\\') && before.length % 2) {
+					return m.slice(1) // consumes esc char
+				}
+
+				return before
+			})
+			// replace escaped ` and ${ with literal
+			.replace(/\\(`|\${)/g, (_m, content) => {
+				// must be odd number of backslashes
+				// because otherwise would terminate the segment
+				return content
+			})
+			// collapse whitespace
+			.replace(/(\\+|^|[^\\])(\s+)/g, (_m, before, space) => {
+				// if odd number of backslashes, one of them is esc char
+				if (before.includes('\\') && before.length % 2) {
+					// consumes esc char
+					// and escapes a single whitespace char
+					return before.slice(1) + space[0]
+				}
+
+				return before
+			})
 
 		const sub = substitutions[idx]
 
@@ -50,13 +76,16 @@ export default function regex(
 	...substitutions: any[]
 ): RegExp
 export default function regex(...args: any[]) {
-	if (!args[0] || !args[0].raw) {
+	if (Array.isArray(args[0])) {
+		const [template, ...substitutions] = args
+
+		return _regex('')(
+			(template as any) as TemplateStringsArray,
+			...substitutions,
+		)
+	} else {
 		const [flags] = args
 
 		return _regex(flags)
-	} else {
-		const [template, ...substitutions] = args
-
-		return _regex('')(template, ...substitutions)
 	}
 }

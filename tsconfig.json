@@ -10,10 +10,10 @@
 		// "jsx": "react" /* Specify JSX code generation: 'preserve', 'react-native', or 'react'. */,
 		// "jsxFactory": "h" /* Specify the JSX factory function to use when targeting react JSX emit, e.g. React.createElement or h. */,
 		// "jsxFragmentFactory": "Fragment",
-		"declaration": true,                   /* Generates corresponding '.d.ts' file. */
+		"declaration": true /* Generates corresponding '.d.ts' file. */,
 		// "sourceMap": true,                     /* Generates corresponding '.map' file. */
 		// "outFile": "./",                       /* Concatenate and emit output to single file. */
-		"outDir": "./dist",                        /* Redirect output structure to the directory. */
+		"outDir": "./dist" /* Redirect output structure to the directory. */,
 		// "rootDir": "./",                       /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */
 		// "removeComments": true,                /* Do not emit comments to output. */
 		// "noEmit": true,                        /* Do not emit outputs. */

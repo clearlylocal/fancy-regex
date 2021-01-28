@@ -1,11 +1,12 @@
 {
 	"name": "fancy-regex",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "JS/TS regexes with whitespace, comments, and interpolation!",
 	"main": "dist/index.js",
 	"scripts": {
-		"test": "jest",
-		"prepublish": "tsc"
+		"test": "jest --watchAll",
+		"build": "tsc",
+		"prepare": "npm run build"
 	},
 	"types": "dist/index.d.ts",
 	"author": "https://github.com/lionel-rowe",
