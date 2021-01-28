@@ -1,9 +1,5 @@
 import regex from '../src'
-
-const regexCompare = (actual: RegExp, expected: RegExp) => {
-	expect(actual.source).toEqual(expected.source)
-	expect(actual.flags).toEqual(expected.flags)
-}
+import { regexCompare } from './helpers/regexCompare'
 
 describe('sanity checks', () => {
 	it('error on invalid regex source', () => {
@@ -16,6 +12,10 @@ describe('sanity checks', () => {
 
 	it('no error on valid regex source', () => {
 		expect(() => regex``).not.toThrow()
+	})
+
+	it('no error on unnecessary escape (without unicode flag)', () => {
+		expect(() => regex`\p`).not.toThrow()
 	})
 
 	it('instanceof RegExp (called directly on template literal)', () => {
@@ -191,6 +191,7 @@ describe('comment removal', () => {
 		const actual = regex`# comment
 		text
 		#comment`
+
 		regexCompare(actual, expected)
 	})
 
@@ -199,6 +200,7 @@ describe('comment removal', () => {
 
 		const actual = regex`text
 		# comment`
+
 		regexCompare(actual, expected)
 	})
 
@@ -372,46 +374,5 @@ describe('escaping', () => {
 		const actual = regex`\\\${`
 
 		regexCompare(actual, expected)
-	})
-})
-
-describe('examples from docs', () => {
-	const oldSchool = /abc/
-	const withFlags = /def/gm
-	const myFancyRegex = regex`\x42{5}`
-
-	const myCaseInsensitiveRegex = regex('i')`
-		^
-			${oldSchool}    # seamlessly interpolate other regexes
-			${myFancyRegex} # also works if the other regex is fancy
-			${withFlags}    # flags ignored when interpolated
-
-			\w\d\b\0\\      # look Mom, no double escaping!
-
-			...
-
-			\r\n\t\x20      # use "\x20" to match a literal space
-		$
-	`
-
-	const myRegexWithOptions = regex({
-		unicode: true,
-		global: true,
-	})`
-		^
-			💩+    # with unicode enabled, this matches by codepoint
-		$
-	`
-
-	it('myCaseInsensitiveRegex', () => {
-		const expected = /^abc\x42{5}def\w\d\b\0\\...\r\n\t\x20$/i
-
-		regexCompare(myCaseInsensitiveRegex, expected)
-	})
-
-	it('myRegexWithOptions', () => {
-		const expected = /^💩+$/gu
-
-		regexCompare(myRegexWithOptions, expected)
 	})
 })

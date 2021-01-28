@@ -1,6 +1,6 @@
 {
 	"name": "fancy-regex",
-	"version": "0.1.4",
+	"version": "0.2.0",
 	"description": "JS/TS regexes with whitespace, comments, and interpolation!",
 	"main": "dist/index.js",
 	"scripts": {

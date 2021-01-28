@@ -1,3 +1,6 @@
+import { exact } from './exact'
+import { unwrap } from './unwrap'
+
 const flagMap = {
 	global: 'g',
 	ignoreCase: 'i',
@@ -55,7 +58,7 @@ const _regex = (options: string | RegexOptions = {}) => (
 		if (sub instanceof RegExp) {
 			source += sub.source
 		} else {
-			source += sub || ''
+			source += sub ?? ''
 		}
 	})
 
@@ -75,7 +78,7 @@ const _regex = (options: string | RegexOptions = {}) => (
 }
 
 export default function regex(
-	options?: string | RegexOptions,
+	flags?: string | RegexOptions,
 ): (template: TemplateStringsArray, ...substitutions: any[]) => RegExp
 export default function regex(
 	template: TemplateStringsArray,
@@ -95,3 +98,6 @@ export default function regex(...args: any[]) {
 		return _regex(flags)
 	}
 }
+
+regex.exact = exact
+regex.unwrap = unwrap
