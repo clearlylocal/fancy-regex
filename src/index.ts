@@ -17,27 +17,33 @@ const _regex = (options: string | RegexOptions = {}) => (
 
 	template.raw.forEach((segment, idx) => {
 		source += segment
-			// remove comments following unescaped #
+			/* Remove comments following unescaped # */
 			.replace(/(\\+|^|[^\\])#.*/g, (m, before) => {
-				// if odd number of backslashes, one of them is esc char
+				/* If odd number of backslashes, one of them is esc char */
 				if (before.includes('\\') && before.length % 2) {
-					return m.slice(1) // consumes esc char
+					return m.slice(1) /* Consumes esc char */
 				}
 
 				return before
 			})
-			// replace escaped ` and ${ with literal
-			.replace(/\\(`|\${)/g, (_m, content) => {
-				// must be odd number of backslashes
-				// because otherwise would terminate the segment
-				return content
-			})
-			// collapse whitespace
+			/*
+				Replace escaped ` with literal.
+				Must be odd number of backslashes
+				because otherwise would terminate the template string.
+			*/
+			.replace(/\\`/g, '`')
+			/*
+				Escaped ${ is a no-op.
+				Use literal $ rather than regex $ (end-of-string)
+				because always followed by {,
+				thus cannot be end-of-string.
+			*/
+			// .replace(/\\\${/g, '$&') // no-op
+			/* Collapse whitespace */
 			.replace(/(\\+|^|[^\\])(\s+)/g, (_m, before, space) => {
-				// if odd number of backslashes, one of them is esc char
+				/* If odd number of backslashes, one of them is esc char */
 				if (before.includes('\\') && before.length % 2) {
-					// consumes esc char
-					// and escapes a single whitespace char
+					/* Consumes esc char and escapes a single whitespace char */
 					return before.slice(1) + space[0]
 				}
 

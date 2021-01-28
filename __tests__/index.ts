@@ -309,7 +309,7 @@ describe('escaping', () => {
 	})
 
 	it('can escape ` and ${', () => {
-		const expected = /`${/
+		const expected = /`\${/
 
 		const actual = regex`\`\${`
 
@@ -317,7 +317,7 @@ describe('escaping', () => {
 	})
 
 	it('correctly escape ` or ${ with any odd number of \\', () => {
-		const expected = /\\`\\\\${/
+		const expected = /\\`\\\\\${/
 
 		const actual = regex`\\\`\\\\\${`
 
@@ -338,6 +338,38 @@ describe('escaping', () => {
 
 		const actual = regex`      \\ \\\\
 		`
+
+		regexCompare(actual, expected)
+	})
+
+	it('$ as end-of-string', () => {
+		const expected = /$/
+
+		const actual = regex`$`
+
+		regexCompare(actual, expected)
+	})
+
+	it('$ literal', () => {
+		const expected = /\$/
+
+		const actual = regex`\$`
+
+		regexCompare(actual, expected)
+	})
+
+	it('${ literal', () => {
+		const expected = /\${/
+
+		const actual = regex`\${`
+
+		regexCompare(actual, expected)
+	})
+
+	it('${ literal with multiple backslashes', () => {
+		const expected = /\\\${/
+
+		const actual = regex`\\\${`
 
 		regexCompare(actual, expected)
 	})
