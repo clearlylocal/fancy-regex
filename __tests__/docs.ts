@@ -1,4 +1,4 @@
-import regex from '../src'
+import { regex, exact, unwrap } from '../src'
 import { regexCompare } from './helpers/regexCompare'
 
 describe('examples from docs', () => {
@@ -57,20 +57,15 @@ describe('examples from docs', () => {
 		regexCompare(myRegexWithOptions, expected)
 	})
 
-	it('regex.exact', () => {
-		expect(regex.exact('.[xy]').test('.[xy]')).toBe(true)
-		expect(regex.exact('.[xy]').test('ax')).toBe(false)
+	it('exact', () => {
+		expect(exact('.[xy]').test('.[xy]')).toBe(true)
+		expect(exact('.[xy]').test('ax')).toBe(false)
 	})
 
-	it('regex.exact', () => {
-		expect(regex.exact('.[xy]').test('.[xy]')).toBe(true)
-		expect(regex.exact('.[xy]').test('ax')).toBe(false)
-	})
-
-	describe('uuid (regex.unwrap)', () => {
+	describe('uuid (unwrap)', () => {
 		const singleHex = /^[0-9a-f]$/i
 
-		const hex = regex.unwrap(singleHex)
+		const hex = unwrap(singleHex)
 
 		const singleUuid = regex`
 			^
@@ -86,7 +81,7 @@ describe('examples from docs', () => {
 			$
 		`
 
-		const multipleUuid = regex.unwrap(singleUuid, 'g')
+		const multipleUuid = unwrap(singleUuid, 'g')
 
 		it('hex', () => {
 			regexCompare(hex, /[0-9a-f]/i)

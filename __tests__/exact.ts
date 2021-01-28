@@ -1,17 +1,17 @@
-import regex from '../src'
+import { regex, exact } from '../src'
 import { regexCompare } from './helpers/regexCompare'
 
 const ALL_ASCIIS = [...new Array(0x80).keys()]
 	.map(k => String.fromCodePoint(k))
 	.join('')
 
-describe('regex.exact', () => {
+describe('exact', () => {
 	it('escapes correctly', () => {
 		const str = '$()*+-.?[\\]^{|}'
 
 		const re = regex`
 			^
-				${regex.exact(str)}
+				${exact(str)}
 			$
 		`
 
@@ -23,7 +23,7 @@ describe('regex.exact', () => {
 
 		const re = regex('u')`
 			^
-				${regex.exact(str)}
+				${exact(str)}
 			$
 		`
 
@@ -33,7 +33,7 @@ describe('regex.exact', () => {
 	it('escapes all ASCIIs correctly', () => {
 		const re = regex('u')`
 			^
-				${regex.exact(ALL_ASCIIS)}
+				${exact(ALL_ASCIIS)}
 			$
 		`
 
@@ -45,7 +45,7 @@ describe('regex.exact', () => {
 
 		const re = regex('u')`
 			^
-				${regex.exact(reversed)}
+				${exact(reversed)}
 			$
 		`
 
@@ -55,7 +55,7 @@ describe('regex.exact', () => {
 	it('escapes inside a capturing group', () => {
 		const re = regex('u')`
 			(
-				${regex.exact(ALL_ASCIIS)}
+				${exact(ALL_ASCIIS)}
 			)
 		`
 
@@ -65,7 +65,7 @@ describe('regex.exact', () => {
 	it('escapes inside a character class', () => {
 		const re = regex('u')`
 			[
-				${regex.exact(ALL_ASCIIS)}
+				${exact(ALL_ASCIIS)}
 			]
 		`
 
@@ -77,14 +77,14 @@ describe('regex.exact', () => {
 	it('does not collapse whitespace', () => {
 		const expected = /\r\n /
 
-		const actual = regex.exact('\r\n ')
+		const actual = exact('\r\n ')
 
 		regexCompare(actual, expected)
 	})
 
 	it('dot matches only literal dot', () => {
-		const re = regex.exact('.', 'g')
-		const dotAll = regex.exact('.', { dotAll: true })
+		const re = exact('.', 'g')
+		const dotAll = exact('.', { dotAll: true })
 
 		expect(re.test('a')).toBe(false)
 		expect(dotAll.test('a')).toBe(false)
@@ -95,7 +95,7 @@ describe('regex.exact', () => {
 	it('works with flags', () => {
 		const expected = /(?:)/gimsuy
 
-		const actual = regex.exact('', 'gimsuy')
+		const actual = exact('', 'gimsuy')
 
 		regexCompare(actual, expected)
 	})
@@ -103,7 +103,7 @@ describe('regex.exact', () => {
 	it('works with options', () => {
 		const expected = /(?:)/y
 
-		const actual = regex.exact('', { sticky: true })
+		const actual = exact('', { sticky: true })
 
 		regexCompare(actual, expected)
 	})
@@ -114,7 +114,7 @@ describe('regex.exact', () => {
 
 		const expected = 'one_!_two_!_three'
 
-		const re = regex.exact(val, 'g')
+		const re = exact(val, 'g')
 
 		expect(input.replace(re, '!')).toBe(expected)
 	})

@@ -1,11 +1,11 @@
-import regex from '../src'
+import { regex, unwrap } from '../src'
 import { regexCompare } from './helpers/regexCompare'
 
-describe('regex.unwrap', () => {
+describe('unwrap', () => {
 	it('unwraps', () => {
 		const re = /^.$/
 		const expected = /./
-		const actual = regex.unwrap(re)
+		const actual = unwrap(re)
 
 		regexCompare(actual, expected)
 	})
@@ -13,7 +13,7 @@ describe('regex.unwrap', () => {
 	it('unwraps start-only', () => {
 		const re = /^./
 		const expected = /./
-		const actual = regex.unwrap(re)
+		const actual = unwrap(re)
 
 		regexCompare(actual, expected)
 	})
@@ -21,7 +21,7 @@ describe('regex.unwrap', () => {
 	it('unwraps end-only', () => {
 		const re = /.$/
 		const expected = /./
-		const actual = regex.unwrap(re)
+		const actual = unwrap(re)
 
 		regexCompare(actual, expected)
 	})
@@ -29,7 +29,7 @@ describe('regex.unwrap', () => {
 	it('is no-op on already-unwrapped', () => {
 		const re = /./
 		const expected = re
-		const actual = regex.unwrap(expected)
+		const actual = unwrap(expected)
 
 		regexCompare(actual, expected)
 	})
@@ -37,9 +37,7 @@ describe('regex.unwrap', () => {
 	it('is idempotent', () => {
 		const re = /^.$/
 		const expected = /./
-		const actual = regex.unwrap(
-			regex.unwrap(regex.unwrap(regex.unwrap(re))),
-		)
+		const actual = unwrap(unwrap(unwrap(unwrap(re))))
 
 		regexCompare(actual, expected)
 	})
@@ -47,7 +45,7 @@ describe('regex.unwrap', () => {
 	it('is reversible', () => {
 		const re = /^.$/
 		const expected = re
-		const actual = regex`^${regex.unwrap(re)}$`
+		const actual = regex`^${unwrap(re)}$`
 
 		regexCompare(actual, expected)
 	})
@@ -55,7 +53,7 @@ describe('regex.unwrap', () => {
 	it('preserves flags by default', () => {
 		const re = /^.$/gimsuy
 		const expected = /./gimsuy
-		const actual = regex.unwrap(re)
+		const actual = unwrap(re)
 
 		regexCompare(actual, expected)
 	})
@@ -63,7 +61,7 @@ describe('regex.unwrap', () => {
 	it('can override flags with string', () => {
 		const re = /^.$/gim
 		const expected = /./suy
-		const actual = regex.unwrap(re, 'suy')
+		const actual = unwrap(re, 'suy')
 
 		regexCompare(actual, expected)
 	})
@@ -71,7 +69,7 @@ describe('regex.unwrap', () => {
 	it('can override flags with options', () => {
 		const re = /^.$/gim
 		const expected = /./suy
-		const actual = regex.unwrap(re, {
+		const actual = unwrap(re, {
 			dotAll: true,
 			unicode: true,
 			sticky: true,
@@ -83,7 +81,7 @@ describe('regex.unwrap', () => {
 	it('preserves whitespace', () => {
 		const re = /^   $/
 		const expected = /   /
-		const actual = regex.unwrap(re)
+		const actual = unwrap(re)
 
 		regexCompare(actual, expected)
 	})

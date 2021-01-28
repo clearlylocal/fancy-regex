@@ -1,4 +1,4 @@
-import regex, { RegexOptions } from '.'
+import { regex, RegexOptions } from './regex'
 
 export function exact(input: string, flags?: string | RegexOptions) {
 	const fragment = input.replace(/[$()*+\-.?[\\\]^{|}]/g, m => {

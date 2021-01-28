@@ -11,7 +11,7 @@ JS/TS regexes with whitespace, comments, and interpolation!
 `regex` is used to create a fancy regex, which compiles to a native JavaScript `RegExp` at runtime.
 
 ```ts
-import regex from 'fancy-regex'
+import { regex } from 'fancy-regex'
 
 const myFancyRegex = regex`
     hello,\ world!        # escaped whitespace with backslash
@@ -61,31 +61,31 @@ const myInterpolatedRegex = regex('i')`
 
 ---
 
-`regex` also provides two utility functions, `regex.exact` and `regex.unwrap`.
+`regex` also provides two utility functions, `exact` and `unwrap`.
 
-### `regex.exact`
+### `exact`
 
-Turns a string into a regex exactly matching itself. For example, `regex.exact('.[xy]')` matches the exact string `".[xy]"`, rather than matching a single character followed by an x or y. This can be useful, for example, sanitizing user for insertion into a regex.
+Turns a string into a regex exactly matching itself. For example, `exact('.[xy]')` matches the exact string `".[xy]"`, rather than matching a single character followed by an x or y. This can be useful, for example, sanitizing user for insertion into a regex.
 
 ```ts
-regex.exact('.[xy]').test('.[xy]') // ⇒ true
-regex.exact('.[xy]').test('ax')    // ⇒ false
+exact('.[xy]').test('.[xy]') // ⇒ true
+exact('.[xy]').test('ax')    // ⇒ false
 
 const textToFind = regex('gi')`
     \b
-    ${regex.exact(userInput)}
+    ${exact(userInput)}
     \b
 `
 ```
 
-### `regex.unwrap`
+### `unwrap`
 
 Removes start-of-string and end-of-string matchers from a regex. Useful for interpolating or repurposing single-match regexes:
 
 ```ts
 const singleHex = /^[0-9a-f]$/i
 
-const hex = regex.unwrap(singleHex)
+const hex = unwrap(singleHex)
 // ⇒ /[0-9a-f]/i
 
 const singleUuid = regex`
@@ -103,6 +103,6 @@ const singleUuid = regex`
 `
 // ⇒ /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 
-const multipleUuid = regex.unwrap(singleUuid, 'g')
+const multipleUuid = unwrap(singleUuid, 'g')
 // ⇒ /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/g
 ```

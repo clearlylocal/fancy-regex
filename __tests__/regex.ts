@@ -1,4 +1,4 @@
-import regex from '../src'
+import { regex } from '../src'
 import { regexCompare } from './helpers/regexCompare'
 
 describe('sanity checks', () => {
