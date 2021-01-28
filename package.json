@@ -6,7 +6,7 @@
 	"scripts": {
 		"test": "jest --watchAll",
 		"build": "tsc",
-		"prepare": "npm run build"
+		"prepare": "jest && npm run build"
 	},
 	"types": "dist/index.d.ts",
 	"author": "https://github.com/lionel-rowe",
