@@ -2,62 +2,71 @@ import { proxy as regex } from '../src'
 import { regexCompare } from './helpers/regexCompare'
 
 describe('proxy', () => {
-	it('creates regex with no flags', () => {
+	it('creates regex with no flags using ._', () => {
 		const expected = /a/
-		const actual1 = regex`a`
-		const actual2 = regex()`a`
-		const actual3 = regex('')`a`
-		const actual4 = regex({})`a`
-
-		regexCompare(actual1, expected)
-		regexCompare(actual2, expected)
-		regexCompare(actual3, expected)
-		regexCompare(actual4, expected)
-	})
-
-	it('creates regex with flags as arg', () => {
-		const expected = /a/g
-		const actual = regex('g')`a`
+		const actual = regex._`a`
 
 		regexCompare(actual, expected)
 	})
 
-	it('creates regex with options as arg', () => {
-		const expected = /a/m
-		const actual = regex({ multiline: true })`a`
-
-		regexCompare(actual, expected)
-	})
-
-	it('creates regex with dot flag notation ', () => {
+	it('creates regex with a flag using .<flag> ', () => {
 		const expected = /a/g
 		const actual = regex.g`a`
 
 		regexCompare(actual, expected)
 	})
 
-	it('creates regex with all flags with dot flag notation', () => {
+	it('creates regex with all flags using .<flags>', () => {
 		const expected = /a/gimsuy
 		const actual = regex.gimsuy`a`
 
 		regexCompare(actual, expected)
 	})
 
-	it('collapses whitespace as normal', () => {
-		const expected = /./g
-		const actual1 = regex.g`  .  `
-		const actual2 = regex('g')`  .  `
+	describe('works the same as base `regex` when not using .<flag>', () => {
+		it('no flags', () => {
+			const expected = /a/
+			const actual1 = regex`a`
+			const actual2 = regex()`a`
+			const actual3 = regex('')`a`
+			const actual4 = regex({})`a`
 
-		regexCompare(actual1, expected)
-		regexCompare(actual2, expected)
-	})
+			regexCompare(actual1, expected)
+			regexCompare(actual2, expected)
+			regexCompare(actual3, expected)
+			regexCompare(actual4, expected)
+		})
 
-	it('interpolates as normal', () => {
-		const expected = / !! /g
-		const actual1 = regex.g`${expected}`
-		const actual2 = regex('g')`${expected}`
+		it('creates regex with flags as arg', () => {
+			const expected = /a/g
+			const actual = regex('g')`a`
 
-		regexCompare(actual1, expected)
-		regexCompare(actual2, expected)
+			regexCompare(actual, expected)
+		})
+
+		it('creates regex with options as arg', () => {
+			const expected = /a/m
+			const actual = regex({ multiline: true })`a`
+
+			regexCompare(actual, expected)
+		})
+
+		it('collapses whitespace as normal', () => {
+			const expected = /./g
+			const actual1 = regex.g`  .  `
+			const actual2 = regex('g')`  .  `
+
+			regexCompare(actual1, expected)
+			regexCompare(actual2, expected)
+		})
+
+		it('interpolates as normal', () => {
+			const expected = / !! /g
+			const actual1 = regex.g`${expected}`
+			const actual2 = regex('g')`${expected}`
+
+			regexCompare(actual1, expected)
+			regexCompare(actual2, expected)
+		})
 	})
 })

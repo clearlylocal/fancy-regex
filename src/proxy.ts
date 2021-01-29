@@ -2,13 +2,14 @@ import { regex } from './regex'
 
 // Experimental API. Requires Proxy or a polyfill.
 
-type Flags = `${'g' | ''}${'i' | ''}${'m' | ''}${'s' | ''}${'u' | ''}${
-	| 'y'
-	| ''}`
+type Flags = Exclude<
+	'_' | `${'g' | ''}${'i' | ''}${'m' | ''}${'s' | ''}${'u' | ''}${'y' | ''}`,
+	''
+>
 
 export const proxy = new Proxy(regex, {
-	get(_target, flags: Flags) {
-		return regex(flags)
+	get(target, flags: Flags) {
+		return target(flags === '_' ? '' : flags)
 	},
 	apply(target, _thisArg, args) {
 		return target(...args)
