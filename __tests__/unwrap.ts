@@ -7,7 +7,7 @@ describe('unwrap', () => {
 		const expected = /./
 		const actual = unwrap(re)
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('unwraps start-only', () => {
@@ -15,7 +15,7 @@ describe('unwrap', () => {
 		const expected = /./
 		const actual = unwrap(re)
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('unwraps end-only', () => {
@@ -23,7 +23,7 @@ describe('unwrap', () => {
 		const expected = /./
 		const actual = unwrap(re)
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('is no-op on already-unwrapped', () => {
@@ -31,7 +31,7 @@ describe('unwrap', () => {
 		const expected = re
 		const actual = unwrap(expected)
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('is idempotent', () => {
@@ -39,7 +39,7 @@ describe('unwrap', () => {
 		const expected = /./
 		const actual = unwrap(unwrap(unwrap(unwrap(re))))
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('is reversible', () => {
@@ -47,7 +47,7 @@ describe('unwrap', () => {
 		const expected = re
 		const actual = regex`^${unwrap(re)}$`
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('preserves flags by default', () => {
@@ -55,7 +55,7 @@ describe('unwrap', () => {
 		const expected = /./gimsuy
 		const actual = unwrap(re)
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('can override flags with string', () => {
@@ -63,7 +63,7 @@ describe('unwrap', () => {
 		const expected = /./suy
 		const actual = unwrap(re, 'suy')
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('can override flags with options', () => {
@@ -75,7 +75,7 @@ describe('unwrap', () => {
 			sticky: true,
 		})
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('preserves whitespace', () => {
@@ -83,6 +83,6 @@ describe('unwrap', () => {
 		const expected = /   /
 		const actual = unwrap(re)
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 })

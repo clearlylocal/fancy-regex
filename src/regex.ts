@@ -9,6 +9,21 @@ const flagMap = {
 
 export type RegexOptions = Partial<Record<keyof typeof flagMap, boolean>>
 
+const commentRegex = /(\\*)#(.*)/g
+
+const commentReplacer = (_m: string, slashes: string, after: string) => {
+	/* If odd number of backslashes, one of them is esc char */
+	if (slashes.length % 2) {
+		return (
+			slashes.slice(1) /* Consumes esc char */ +
+			'#' +
+			after.replace(commentRegex, commentReplacer)
+		)
+	}
+
+	return slashes
+}
+
 const _regex = (options: string | RegexOptions = {}) => (
 	template: TemplateStringsArray,
 	...substitutions: any[]
@@ -18,14 +33,7 @@ const _regex = (options: string | RegexOptions = {}) => (
 	template.raw.forEach((segment, idx) => {
 		source += segment
 			/* Remove comments following unescaped # */
-			.replace(/(\\+|^|[^\\])#.*/g, (m, before) => {
-				/* If odd number of backslashes, one of them is esc char */
-				if (before.includes('\\') && before.length % 2) {
-					return m.slice(1) /* Consumes esc char */
-				}
-
-				return before
-			})
+			.replace(commentRegex, commentReplacer)
 			/*
 				Replace escaped ` with literal.
 				Must be odd number of backslashes
@@ -34,20 +42,21 @@ const _regex = (options: string | RegexOptions = {}) => (
 			.replace(/\\`/g, '`')
 			/*
 				Escaped ${ is a no-op.
-				Use literal $ rather than regex $ (end-of-string)
-				because always followed by {,
-				thus cannot be end-of-string.
+				We use literal $ rather than regex $ (end-of-string)
+				because followed by {, thus cannot be end-of-string.
 			*/
 			// .replace(/\\\${/g, '$&') // no-op
 			/* Collapse whitespace */
-			.replace(/(\\+|^|[^\\])(\s+)/g, (_m, before, space) => {
+			.replace(/(\\*)(\s+)/g, (_m, slashes, space) => {
 				/* If odd number of backslashes, one of them is esc char */
-				if (before.includes('\\') && before.length % 2) {
-					/* Consumes esc char and escapes a single whitespace char */
-					return before.slice(1) + space[0]
+				if (space[0] === ' ' && slashes.length % 2) {
+					/* Consumes esc char and escapes a single space char */
+					/* Escaping Tab, CR, LF not supported */
+					/* Use \t, \r, \n instead */
+					return slashes.slice(1) + space[0]
 				}
 
-				return before
+				return slashes
 			})
 
 		const sub = substitutions[idx]

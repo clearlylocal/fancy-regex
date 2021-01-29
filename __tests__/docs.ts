@@ -42,19 +42,19 @@ describe('examples from docs', () => {
 	it('myFancyRegex', () => {
 		const expected = /hello, world!/
 
-		regexCompare(myFancyRegex, expected)
+		regexCompare(expected, myFancyRegex)
 	})
 
 	it('myInterpolatedRegex', () => {
 		const expected = /^abchello, world!🌎\w\d\b\0\\...\r\n\t\x20$/i
 
-		regexCompare(myInterpolatedRegex, expected)
+		regexCompare(expected, myInterpolatedRegex)
 	})
 
 	it('myRegexWithOptions', () => {
 		const expected = /^💩+$/gu
 
-		regexCompare(myRegexWithOptions, expected)
+		regexCompare(expected, myRegexWithOptions)
 	})
 
 	it('exact', () => {

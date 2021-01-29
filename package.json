@@ -1,10 +1,10 @@
 {
 	"name": "fancy-regex",
-	"version": "0.4.1",
+	"version": "0.4.2",
 	"description": "JS/TS regexes with whitespace, comments, and interpolation!",
 	"main": "dist/index.js",
 	"scripts": {
-		"test": "jest --verbose --watchAll",
+		"test": "jest --watchAll",
 		"build": "tsc && babel --plugins @babel/plugin-transform-modules-commonjs dist/*.js -d dist",
 		"prepare": "jest && npm run build"
 	},

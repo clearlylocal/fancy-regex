@@ -95,7 +95,7 @@ describe('exact', () => {
 
 		const actual = exact('\r\n ')
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('dot matches only literal dot', () => {
@@ -113,7 +113,7 @@ describe('exact', () => {
 
 		const actual = exact('', 'gimsuy')
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('works with options', () => {
@@ -121,7 +121,7 @@ describe('exact', () => {
 
 		const actual = exact('', { sticky: true })
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('works case insensitive', () => {

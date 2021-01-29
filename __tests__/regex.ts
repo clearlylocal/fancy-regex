@@ -53,7 +53,7 @@ describe('no flags', () => {
 
 		const actual = regex``
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('empty regex with non-capturing group', () => {
@@ -61,7 +61,7 @@ describe('no flags', () => {
 
 		const actual = regex`(?:)`
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('simple', () => {
@@ -69,7 +69,7 @@ describe('no flags', () => {
 
 		const actual = regex`.+`
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('complex', () => {
@@ -79,7 +79,7 @@ describe('no flags', () => {
 			\0\b\t\r\n\\ # comment
 		`
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 })
 
@@ -89,7 +89,7 @@ describe('string flags', () => {
 
 		const actual = regex('gimsuy')``
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('all flags', () => {
@@ -97,7 +97,7 @@ describe('string flags', () => {
 
 		const actual = regex('gimsuy')``
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('stable ordering of flags', () => {
@@ -105,7 +105,7 @@ describe('string flags', () => {
 
 		const actual = regex('yusmig')``
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('stable ordering of flags #2', () => {
@@ -113,7 +113,7 @@ describe('string flags', () => {
 
 		const actual = regex('gimsuy')``
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('reject invalid flags', () => {
@@ -131,7 +131,7 @@ describe('options object', () => {
 
 		const actual = regex({})``
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('all flags', () => {
@@ -146,7 +146,7 @@ describe('options object', () => {
 			unicode: true,
 		})``
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 })
 
@@ -159,7 +159,7 @@ describe('whitespace collapsing', () => {
 
 		`
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('collapse to content-only', () => {
@@ -172,7 +172,7 @@ describe('whitespace collapsing', () => {
 
 		`
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('cannot use literal space', () => {
@@ -192,7 +192,7 @@ describe('comment removal', () => {
 		text
 		#comment`
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('removes comments at start of line', () => {
@@ -201,7 +201,7 @@ describe('comment removal', () => {
 		const actual = regex`text
 		# comment`
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('removes comments from hash symbol to EoL', () => {
@@ -212,7 +212,7 @@ describe('comment removal', () => {
 			b # B
 			c # C ########## ...
 		`
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('can use \\# to escape hash symbol', () => {
@@ -224,7 +224,7 @@ describe('comment removal', () => {
 			c \# C
 		`
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('cannot use \\\\# to escape hash symbol', () => {
@@ -237,7 +237,7 @@ describe('comment removal', () => {
 			d \\\\# D
 		`
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 })
 
@@ -247,7 +247,7 @@ describe('interpolation', () => {
 
 		const actual = regex`.{${2 + 3}}`
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('interpolates strings', () => {
@@ -257,7 +257,7 @@ describe('interpolation', () => {
 
 		const actual = regex`.${str}`
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('preserves whitespace in interpolated string', () => {
@@ -269,7 +269,7 @@ describe('interpolation', () => {
 
 		const actual = regex`${crlf}${tab}${space}`
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('interpolates other regexes', () => {
@@ -279,7 +279,7 @@ describe('interpolation', () => {
 
 		const actual = regex`.${re}`
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('ignores flags for inner regexes', () => {
@@ -289,7 +289,7 @@ describe('interpolation', () => {
 
 		const actual = regex`.${re}`
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 })
 
@@ -299,7 +299,7 @@ describe('escaping', () => {
 
 		const actual = regex`\b\w\d\0(a)\1`
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('does not require escaping for unicode properties', () => {
@@ -307,15 +307,15 @@ describe('escaping', () => {
 
 		const actual = regex('u')`\p{C}`
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('can escape ` and ${', () => {
-		const expected = /`\${/
+		const expected = /`\${_\${`/
 
-		const actual = regex`\`\${`
+		const actual = regex`\`\${_\${\``
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('correctly escape ` or ${ with any odd number of \\', () => {
@@ -323,16 +323,15 @@ describe('escaping', () => {
 
 		const actual = regex`\\\`\\\\\${`
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
-	it('can escape whitespace', () => {
-		const expected = / \\\n/
+	it('can escape spaces', () => {
+		const expected = / \\  /
 
-		const actual = regex`      \ \\\
-		`
+		const actual = regex`      \ \\\ \ `
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('does not escape whitespace with even number of slashes', () => {
@@ -341,7 +340,7 @@ describe('escaping', () => {
 		const actual = regex`      \\ \\\\
 		`
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('$ as end-of-string', () => {
@@ -349,7 +348,7 @@ describe('escaping', () => {
 
 		const actual = regex`$`
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('$ literal', () => {
@@ -357,7 +356,7 @@ describe('escaping', () => {
 
 		const actual = regex`\$`
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('${ literal', () => {
@@ -365,7 +364,7 @@ describe('escaping', () => {
 
 		const actual = regex`\${`
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('${ literal with multiple backslashes', () => {
@@ -373,6 +372,36 @@ describe('escaping', () => {
 
 		const actual = regex`\\\${`
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
+	})
+
+	it('escaped spaces', () => {
+		const pairs = [
+			[/a b/, regex`a\ b`],
+			[/a\\b/, regex`a\\ b`],
+			[/a\\ b/, regex`a\\\ b`],
+			[/a bc d/, regex`a\ bc\ d`],
+			[/a   b/, regex`a\ \ \ b`],
+		]
+
+		pairs.forEach(([expected, actual]) => {
+			regexCompare(expected, actual)
+		})
+	})
+
+	it('escaped hashes', () => {
+		const pairs = [
+			[/a#b/, regex`a\#b`],
+			[/a\\/, regex`a\\#b`],
+			[/a\\#b/, regex`a\\\#b`],
+			[/a#bc/, regex`a\#bc#d`],
+			[/a#bc#d/, regex`a\#bc\#d`],
+			[/a/, regex`a#bc#d`],
+			[/a#bc d/, regex`a\#bc\ d`],
+		]
+
+		pairs.forEach(([expected, actual]) => {
+			regexCompare(expected, actual)
+		})
 	})
 })

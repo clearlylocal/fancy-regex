@@ -6,21 +6,21 @@ describe('proxy', () => {
 		const expected = /a/
 		const actual = regex._`a`
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('creates regex with a flag using .<flag> ', () => {
 		const expected = /a/g
 		const actual = regex.g`a`
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	it('creates regex with all flags using .<flags>', () => {
 		const expected = /a/gimsuy
 		const actual = regex.gimsuy`a`
 
-		regexCompare(actual, expected)
+		regexCompare(expected, actual)
 	})
 
 	describe('works the same as base `regex` when not using .<flag>', () => {
@@ -31,24 +31,24 @@ describe('proxy', () => {
 			const actual3 = regex('')`a`
 			const actual4 = regex({})`a`
 
-			regexCompare(actual1, expected)
-			regexCompare(actual2, expected)
-			regexCompare(actual3, expected)
-			regexCompare(actual4, expected)
+			regexCompare(expected, actual1)
+			regexCompare(expected, actual2)
+			regexCompare(expected, actual3)
+			regexCompare(expected, actual4)
 		})
 
 		it('creates regex with flags as arg', () => {
 			const expected = /a/g
 			const actual = regex('g')`a`
 
-			regexCompare(actual, expected)
+			regexCompare(expected, actual)
 		})
 
 		it('creates regex with options as arg', () => {
 			const expected = /a/m
 			const actual = regex({ multiline: true })`a`
 
-			regexCompare(actual, expected)
+			regexCompare(expected, actual)
 		})
 
 		it('collapses whitespace as normal', () => {
@@ -56,8 +56,8 @@ describe('proxy', () => {
 			const actual1 = regex.g`  .  `
 			const actual2 = regex('g')`  .  `
 
-			regexCompare(actual1, expected)
-			regexCompare(actual2, expected)
+			regexCompare(expected, actual1)
+			regexCompare(expected, actual2)
 		})
 
 		it('interpolates as normal', () => {
@@ -65,8 +65,8 @@ describe('proxy', () => {
 			const actual1 = regex.g`${expected}`
 			const actual2 = regex('g')`${expected}`
 
-			regexCompare(actual1, expected)
-			regexCompare(actual2, expected)
+			regexCompare(expected, actual1)
+			regexCompare(expected, actual2)
 		})
 	})
 })
