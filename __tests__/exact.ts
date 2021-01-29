@@ -1,9 +1,25 @@
-import { regex, exact } from '../src'
+import { regex, exact, regexEscape } from '../src'
 import { regexCompare } from './helpers/regexCompare'
 
 const ALL_ASCIIS = [...new Array(0x80).keys()]
 	.map(k => String.fromCodePoint(k))
 	.join('')
+
+describe('regexEscape', () => {
+	describe('regexEscape', () => {
+		it('escapes correctly', () => {
+			const str = '$()*+-.?[\\]^{|}'
+
+			const re = regex`
+				^
+					${regexEscape(str)}
+				$
+			`
+
+			expect(re.test(str)).toBe(true)
+		})
+	})
+})
 
 describe('exact', () => {
 	it('escapes correctly', () => {
@@ -106,6 +122,15 @@ describe('exact', () => {
 		const actual = exact('', { sticky: true })
 
 		regexCompare(actual, expected)
+	})
+
+	it('works case insensitive', () => {
+		expect(exact('.[xy]', '').test('.[XY]')).toBe(false)
+		expect(exact('.[xy]', 'i').test('.[XY]')).toBe(true)
+	})
+
+	it('works global', () => {
+		expect('.[XY] .[xy] .[xY]'.match(exact('.[xy]', 'gi'))).toHaveLength(3)
 	})
 
 	it('works like String#replaceAll if global flag is set', () => {

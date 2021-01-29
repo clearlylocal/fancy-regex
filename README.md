@@ -61,21 +61,28 @@ const myInterpolatedRegex = regex('i')`
 
 ---
 
-`regex` also provides two utility functions, `exact` and `unwrap`.
+`regex` also provides some utility functions — `regexEscape`, `exact`, and `unwrap`.
 
-### `exact`
+### `regexEscape` and `exact`
 
-Turns a string into a regex exactly matching itself. For example, `exact('.[xy]')` matches the exact string `".[xy]"`, rather than matching a single character followed by an x or y. This can be useful, for example, sanitizing user for insertion into a regex.
+`regexEscape` escapes arbitrary string data for interpolation into a regex, exactly matching the input string. `exact` works similarly, except it returns a regex without the need for interpolation.
+
+For example, `exact('.[xy]')` matches the exact string `".[xy]"`, rather than matching a single character followed by an x or y. These functions can be useful, for example, sanitizing user for insertion into a regex.
 
 ```ts
+// sanitizing user input
+const textMatcher = regex('gi')`
+    \b
+    ${regexEscape(searchText)}
+    \b
+`
+
+// using `exact`
 exact('.[xy]').test('.[xy]') // ⇒ true
 exact('.[xy]').test('ax')    // ⇒ false
 
-const textToFind = regex('gi')`
-    \b
-    ${exact(userInput)}
-    \b
-`
+// or with flags...
+exact('.[xy]', 'i').test('.[XY]') // ⇒ true
 ```
 
 ### `unwrap`

@@ -2,7 +2,7 @@ import { regex } from './regex'
 
 // Experimental API. Requires Proxy or a polyfill.
 
-type Flags = Exclude<
+export type Flags = Exclude<
 	'_' | `${'g' | ''}${'i' | ''}${'m' | ''}${'s' | ''}${'u' | ''}${'y' | ''}`,
 	''
 >
