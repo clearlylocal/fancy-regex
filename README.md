@@ -113,3 +113,36 @@ const singleUuid = regex`
 const multipleUuid = unwrap(singleUuid, 'g')
 // ⇒ /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/g
 ```
+
+---
+
+### Experimental Proxy API
+
+To enable the experimental [Proxy](https://developer.mozilla.org/en-us/docs/Web/JavaScript/Reference/Global_Objects/Proxy)-based API, which provides syntax sugar for setting flags, change the `import` statement as follows:
+
+```diff
+- import { regex } from 'fancy-regex'
++ import { proxy as regex } from 'fancy-regex'
+```
+
+You can then use the syntax `` regex.<flags>`...` `` as an additional alternative to `` regex('<flags>')`...` ``. For example:
+
+```ts
+regex.gi`
+	${'I have global and ignore-case flags set!'}
+`
+
+regex._`
+	${'_ can be used to indicate no flags'}
+`
+```
+
+Note that, if you're using TypeScript, the type checking for this syntax requires that the flags are given in alphabetical order:
+
+```ts
+// OK!
+regex.gimsuy`👍`
+
+// Property 'yusmig' does not exist on type [...]
+regex.yusmig`⛔`
+```

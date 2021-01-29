@@ -2,10 +2,9 @@ import { regex } from './regex'
 
 // Experimental API. Requires Proxy or a polyfill.
 
-export type Flags = Exclude<
-	'_' | `${'g' | ''}${'i' | ''}${'m' | ''}${'s' | ''}${'u' | ''}${'y' | ''}`,
-	''
->
+export type Flags =
+	| '_'
+	| `${'g' | ''}${'i' | ''}${'m' | ''}${'s' | ''}${'u' | ''}${'y' | ''}`
 
 export const proxy = new Proxy(regex, {
 	get(target, flags: Flags) {
