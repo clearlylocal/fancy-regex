@@ -8,25 +8,25 @@ JS/TS regexes with whitespace, comments, and interpolation!
 
 ### `regex`
 
-`regex` is used to create a fancy regex, which compiles to a native JavaScript `RegExp` at runtime.
+`regex()` is used to create a fancy regex, which compiles to a native JavaScript `RegExp` at runtime.
 
 ```ts
 import { regex } from 'fancy-regex'
 
-const myFancyRegex = regex`
+const myFancyRegex = regex()`
     hello,\ world!        # escaped whitespace with backslash
 `
 // ⇒ /hello, world!/
 ```
 
-If you don’t need to use any flags, the `regex` function is directly callable on template strings. Otherwise, you can pass the flags to `regex` first:
+You can pass flags to `regex` first:
 
 ```ts
-const myGlobalRegex = regex('g')`🌎`
-// ⇒ /🌎/g
+const myGlobalRegex = regex('gu')`🌎`
+// ⇒ /🌎/gu
 ```
 
-If you like, you can pass an options object instead of string flags:
+If you like, you can also pass an options object instead of string flags:
 
 ```ts
 const myRegexWithOptions = regex({
@@ -40,12 +40,12 @@ const myRegexWithOptions = regex({
 // ⇒ /^💩+$/gu
 ```
 
-Interpolation is simple:
+Interpolation is simple, with escaping of interpolated strings handled automatically:
 
 ```ts
-const myInterpolatedRegex = regex('i')`
+const myInterpolatedRegex = regex('iu')`
     ^
-        ${'abc'}          # seamlessly interpolate strings...
+        ${'abc.'}         # seamlessly interpolate strings...
         ${myFancyRegex}   # ...and other regexes
         ${myGlobalRegex}  # inner flags are ignored when interpolated
 
@@ -56,34 +56,34 @@ const myInterpolatedRegex = regex('i')`
         \r\n\t\x20        # you can also use "\x20" to match a literal space
     $
 `
-// ⇒ /abchello, world!🌎\w\d\b\0\\...\r\n\t\x20/i
+// ⇒ /^abc\.hello, world!🌎\w\d\b\0\\...\r\n\t\x20$/iu
+```
+
+If you want to interpolate a string you want to be interpreted as raw regex source, you'll need to wrap it in a `RegexFragment` first:
+
+```ts
+import { RegexFragment } from 'fancy-regex'
+
+const rawInterpolation = regex()`
+	${new RegexFragment('.')}
+`
+// ⇒ /./
+```
+
+Interpolated arrays are automatically converted to non-capturing groups:
+
+```ts
+import { RegexFragment } from 'fancy-regex'
+
+const withArray = regex()`
+	${['a', 'b', '.', new RegexFragment('.'), /./]}
+`
+// ⇒ /(?:a|b|\.|.)/
 ```
 
 ---
 
-`regex` also provides some utility functions — `regexEscape`, `exact`, and `unwrap`.
-
-### `regexEscape` and `exact`
-
-`regexEscape` escapes arbitrary string data for interpolation into a regex, exactly matching the input string. `exact` works similarly, except it returns a regex without the need for interpolation.
-
-For example, `exact('.[xy]')` matches the exact string `".[xy]"`, rather than matching a single character followed by an x or y. These functions can be useful, for example, sanitizing user for insertion into a regex.
-
-```ts
-// sanitizing user input
-const textMatcher = regex('gi')`
-    \b
-    ${regexEscape(searchText)}
-    \b
-`
-
-// using `exact`
-exact('.[xy]').test('.[xy]') // ⇒ true
-exact('.[xy]').test('ax')    // ⇒ false
-
-// or with flags...
-exact('.[xy]', 'i').test('.[XY]') // ⇒ true
-```
+`regex` also provides the utility function `unwrap`.
 
 ### `unwrap`
 

@@ -1,3 +1,7 @@
+import { getContextAgnosticMap, regexEscape } from './exact'
+
+export class RegexFragment extends String {}
+
 const flagMap = {
 	global: 'g',
 	ignoreCase: 'i',
@@ -24,64 +28,104 @@ const commentReplacer = (_m: string, slashes: string, after: string) => {
 	return slashes
 }
 
-const _regex = (options: string | RegexOptions = {}) => (
-	template: TemplateStringsArray,
-	...substitutions: any[]
-) => {
-	let source = ''
-
-	template.raw.forEach((segment, idx) => {
-		source += segment
-			/* Remove comments following unescaped # */
-			.replace(commentRegex, commentReplacer)
-			/*
-				Replace escaped ` with literal.
-				Must be odd number of backslashes
-				because otherwise would terminate the template string.
-			*/
-			.replace(/\\`/g, '`')
-			/*
-				Escaped ${ is a no-op.
-				We use literal $ rather than regex $ (end-of-string)
-				because followed by {, thus cannot be end-of-string.
-			*/
-			// .replace(/\\\${/g, '$&') // no-op
-			/* Collapse whitespace */
-			.replace(/(\\*)(\s+)/g, (_m, slashes, space) => {
-				/* If odd number of backslashes, one of them is esc char */
-				if (space[0] === ' ' && slashes.length % 2) {
-					/* Consumes esc char and escapes a single space char */
-					/* Escaping Tab, CR, LF not supported */
-					/* Use \t, \r, \n instead */
-					return slashes.slice(1) + space[0]
-				}
-
-				return slashes
-			})
-
-		const sub = substitutions[idx]
-
-		if (sub instanceof RegExp) {
-			source += sub.source
+const processSub = (flags: string) => (sub: unknown) => {
+	if (sub instanceof RegExp) {
+		if (sub.flags === flags) {
+			return sub.source
 		} else {
-			source += sub ?? ''
-		}
-	})
+			const mapIn = getContextAgnosticMap(sub.flags)
+			const mapOut = getContextAgnosticMap(flags)
 
-	let flags = ''
+			const diff: string[] = []
 
-	if (typeof options === 'string') {
-		flags = options
-	} else {
-		Object.entries(flagMap).forEach(([k, v]) => {
-			if (options[k as keyof RegexOptions]) {
-				flags += v
+			for (const ch of Object.keys(mapIn)) {
+				// console.log({ mapIn, ch }, mapIn[ch])
+				if (mapIn[ch] !== mapOut[ch]) {
+					diff.push(mapIn[ch])
+				}
 			}
-		})
-	}
 
-	return new RegExp(source, flags)
+			for (const ch of Object.keys(mapOut)) {
+				if (mapIn[ch] !== mapOut[ch]) {
+					diff.push(ch)
+				}
+			}
+
+			const re = new RegExp(
+				`(?:${diff.map((x) => regexEscape(x, 'i')).join('|')})`,
+				'gi',
+			)
+
+			return !diff.length
+				? sub.source
+				: sub.source.replace(
+						re,
+						(m) => mapOut[m.startsWith('\\') ? m.slice(1) : m] ?? m,
+				  )
+		}
+	} else if (typeof sub === 'string') {
+		return regexEscape(sub, flags)
+	} else {
+		return sub ?? ''
+	}
 }
+
+const _regex =
+	(options: string | RegexOptions = {}) =>
+	(template: TemplateStringsArray, ...substitutions: unknown[]) => {
+		let source = ''
+		let flagArr: string[] = []
+
+		if (typeof options === 'string') {
+			flagArr = [...options]
+		} else {
+			Object.entries(flagMap).forEach(([k, v]) => {
+				if (options[k as keyof RegexOptions]) {
+					flagArr.push(v)
+				}
+			})
+		}
+
+		const flags = flagArr.sort((a, b) => a.localeCompare(b)).join('')
+
+		template.raw.forEach((segment, idx) => {
+			source += segment
+				/* Remove comments following unescaped # */
+				.replace(commentRegex, commentReplacer)
+				/*
+					Replace escaped ` with literal.
+					Must be odd number of backslashes
+					because otherwise would terminate the template string.
+				*/
+				.replace(/\\`/g, '`')
+				/*
+					Escaped ${ is a no-op.
+					We use literal $ rather than regex $ (end-of-string)
+					because followed by {, thus cannot be end-of-string.
+				*/
+				// .replace(/\\\${/g, '$&') // no-op
+				/* Collapse whitespace */
+				.replace(/(\\*)(\s+)/g, (_m, slashes, space) => {
+					/* If odd number of backslashes, one of them is esc char */
+					if (space[0] === ' ' && slashes.length % 2) {
+						/* Consumes esc char and escapes a single space char */
+						/* Escaping Tab, CR, LF not supported */
+						/* Use \t, \r, \n instead */
+						return slashes.slice(1) + space[0]
+					}
+
+					return slashes
+				})
+
+			const sub = substitutions[idx]
+
+			source += Array.isArray(sub)
+				? `(?:${sub.map(processSub(flags)).join('|')})`
+				: processSub(flags)(sub)
+		})
+
+		return new RegExp(source, flags)
+	}
 
 export function regex(
 	flags?: string | RegexOptions,
@@ -95,7 +139,7 @@ export function regex(...args: any[]) {
 		const [template, ...substitutions] = args
 
 		return _regex('')(
-			(template as any) as TemplateStringsArray,
+			template as any as TemplateStringsArray,
 			...substitutions,
 		)
 	} else {

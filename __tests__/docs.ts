@@ -1,4 +1,4 @@
-import { regex, exact, unwrap } from '../src'
+import { regex, exact, unwrap, RegexFragment } from '../src'
 import { regexCompare } from './helpers/regexCompare'
 
 describe('examples from docs', () => {
@@ -10,15 +10,15 @@ describe('examples from docs', () => {
 		'6dd855de-eb80-4d98-8d6f-46d3bc447e9a',
 	]
 
-	const myFancyRegex = regex`
+	const myFancyRegex = regex()`
 		hello,\ world!        # escaped whitespace with backslash
 	`
 
-	const myGlobalRegex = regex('g')`🌎`
+	const myGlobalRegex = regex('gu')`🌎`
 
-	const myInterpolatedRegex = regex('i')`
+	const myInterpolatedRegex = regex('iu')`
 		^
-			${'abc'}          # seamlessly interpolate strings...
+			${'abc.'}         # seamlessly interpolate strings...
 			${myFancyRegex}   # ...and other regexes
 			${myGlobalRegex}  # inner flags are ignored when interpolated
 
@@ -46,7 +46,7 @@ describe('examples from docs', () => {
 	})
 
 	it('myInterpolatedRegex', () => {
-		const expected = /^abchello, world!🌎\w\d\b\0\\...\r\n\t\x20$/i
+		const expected = /^abc\.hello, world!🌎\w\d\b\0\\...\r\n\t\x20$/iu
 
 		regexCompare(expected, myInterpolatedRegex)
 	})
@@ -60,6 +60,22 @@ describe('examples from docs', () => {
 	it('exact', () => {
 		expect(exact('.[xy]').test('.[xy]')).toBe(true)
 		expect(exact('.[xy]').test('ax')).toBe(false)
+	})
+
+	it('rawInterpolation', () => {
+		const expected = /./
+		const rawInterpolation = regex()`
+			${new RegexFragment('.')}
+		`
+		regexCompare(expected, rawInterpolation)
+	})
+
+	it('withArray', () => {
+		const expected = /(?:a|b|\.|.|.)/
+		const withArray = regex()`
+			${['a', 'b', '.', new RegexFragment('.'), /./]}
+		`
+		regexCompare(expected, withArray)
 	})
 
 	describe('uuid (unwrap)', () => {
@@ -88,7 +104,7 @@ describe('examples from docs', () => {
 		})
 
 		it('singleUuid', () => {
-			uuids.forEach(uuid => {
+			uuids.forEach((uuid) => {
 				expect(uuid).toMatch(singleUuid)
 			})
 		})

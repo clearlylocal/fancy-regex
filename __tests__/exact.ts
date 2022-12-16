@@ -2,7 +2,7 @@ import { regex, exact, regexEscape } from '../src'
 import { regexCompare } from './helpers/regexCompare'
 
 const ALL_ASCIIS = [...new Array(0x80).keys()]
-	.map(k => String.fromCodePoint(k))
+	.map((k) => String.fromCodePoint(k))
 	.join('')
 
 describe('regexEscape', () => {
@@ -85,7 +85,7 @@ describe('exact', () => {
 			]
 		`
 
-		;[...ALL_ASCIIS].forEach(ch => {
+		;[...ALL_ASCIIS].forEach((ch) => {
 			expect(re.test(ch)).toBe(true)
 		})
 	})
