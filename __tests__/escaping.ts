@@ -25,7 +25,7 @@ describe('exact', () => {
 	it('escapes correctly', () => {
 		const str = '$()*+-.?[\\]^{|}'
 
-		const re = regex`
+		const re = regex()`
 			^
 				${exact(str)}
 			$

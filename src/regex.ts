@@ -1,6 +1,12 @@
-import { getContextAgnosticMap, regexEscape } from './exact'
+import { getContextAgnosticMap, regexEscape, regexLength } from './escaping'
 
 export class RegexFragment extends String {}
+
+export class LazyAlternation extends Array {
+	constructor(...args: [unknown[]] | unknown[]) {
+		super(...(Array.isArray(args[0]) ? args[0] : args))
+	}
+}
 
 const flagMap = {
 	global: 'g',
@@ -66,7 +72,7 @@ const processSub = (flags: string) => (sub: unknown) => {
 	} else if (typeof sub === 'string') {
 		return regexEscape(sub, flags)
 	} else {
-		return sub ?? ''
+		return String(sub ?? '')
 	}
 }
 
@@ -119,9 +125,16 @@ const _regex =
 
 			const sub = substitutions[idx]
 
-			source += Array.isArray(sub)
-				? `(?:${sub.map(processSub(flags)).join('|')})`
-				: processSub(flags)(sub)
+			if (Array.isArray(sub)) {
+				const mult = sub instanceof LazyAlternation ? -1 : 1
+
+				source += `(?:${sub
+					.map(processSub(flags))
+					.sort((a, b) => mult * (regexLength(b) - regexLength(a)))
+					.join('|')})`
+			} else {
+				source += processSub(flags)(sub)
+			}
 		})
 
 		return new RegExp(source, flags)

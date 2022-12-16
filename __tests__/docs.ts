@@ -83,7 +83,7 @@ describe('examples from docs', () => {
 
 		const hex = unwrap(singleHex)
 
-		const singleUuid = regex`
+		const singleUuid = regex()`
 			^
 				${hex}{8}
 				-

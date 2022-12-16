@@ -124,3 +124,27 @@ export function regexEscape(input: string, flags = 'u') {
 export function exact(input: string, flags?: string | RegexOptions) {
 	return regex(flags)`${input}`
 }
+
+/**
+ * Gives approximate logical "length" of a string, regex, or regex fragment, for
+ * use in sorting arrays to be used in alternation groups. Doesn't cover various
+ * edge cases or variable-length regexes (e.g. /a+/, /b{1,5}/, etc).
+ */
+export function regexLength(input: RegexFragment | string) {
+	return (
+		// TODO?
+		// .replace(/\[[^\]]+\]/g, '.')
+		input
+			// TODO?
+			// .replace(/(?<=[^\\](\\{2})*)\\b|[^$]/g, '')
+			.replace(
+				/\\(?:\w\{[^}]+\}|u[0-9a-f]{4}|x[0-9a-f]{2}|[0-8]{3}|c[A-Z]|.)/gi,
+				'.',
+			).length
+	)
+}
+
+// TODO?
+// export function regexUnescape(input: RegexFragment | string) {
+// 	return input.replace(/s/g)
+// }

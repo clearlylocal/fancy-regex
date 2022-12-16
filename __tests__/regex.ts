@@ -1,9 +1,9 @@
-import { regex } from '../src'
+import { LazyAlternation, regex } from '../src'
 import { regexCompare } from './helpers/regexCompare'
 
 describe('sanity checks', () => {
 	it('error on invalid regex source', () => {
-		expect(() => regex`[`).toThrow(SyntaxError)
+		expect(() => regex()`[`).toThrow(SyntaxError)
 	})
 
 	it('error on invalid regex source (unicode)', () => {
@@ -11,15 +11,11 @@ describe('sanity checks', () => {
 	})
 
 	it('no error on valid regex source', () => {
-		expect(() => regex``).not.toThrow()
+		expect(() => regex()``).not.toThrow()
 	})
 
 	it('no error on unnecessary escape (without unicode flag)', () => {
-		expect(() => regex`\p`).not.toThrow()
-	})
-
-	it('instanceof RegExp (called directly on template literal)', () => {
-		expect(regex``).toBeInstanceOf(RegExp)
+		expect(() => regex()`\p`).not.toThrow()
 	})
 
 	it('instanceof Function when not called (flags)', () => {
@@ -51,7 +47,7 @@ describe('no flags', () => {
 	it('empty regex', () => {
 		const expected = /(?:)/
 
-		const actual = regex``
+		const actual = regex()``
 
 		regexCompare(expected, actual)
 	})
@@ -59,7 +55,7 @@ describe('no flags', () => {
 	it('empty regex with non-capturing group', () => {
 		const expected = /(?:)/
 
-		const actual = regex`(?:)`
+		const actual = regex()`(?:)`
 
 		regexCompare(expected, actual)
 	})
@@ -67,7 +63,7 @@ describe('no flags', () => {
 	it('simple', () => {
 		const expected = /.+/
 
-		const actual = regex`.+`
+		const actual = regex()`.+`
 
 		regexCompare(expected, actual)
 	})
@@ -75,7 +71,7 @@ describe('no flags', () => {
 	it('complex', () => {
 		const expected = /\0\b\t\r\n\\/
 
-		const actual = regex`
+		const actual = regex()`
 			\0\b\t\r\n\\ # comment
 		`
 
@@ -154,7 +150,7 @@ describe('whitespace collapsing', () => {
 	it('collapse to empty regex', () => {
 		const expected = /(?:)/
 
-		const actual = regex`
+		const actual = regex()`
 
 
 		`
@@ -165,7 +161,7 @@ describe('whitespace collapsing', () => {
 	it('collapse to content-only', () => {
 		const expected = /hello_world/
 
-		const actual = regex`hello
+		const actual = regex()`hello
 
 		_
 		world
@@ -176,11 +172,11 @@ describe('whitespace collapsing', () => {
 	})
 
 	it('cannot use literal space', () => {
-		expect(regex`^ $`.test(' ')).toBe(false)
+		expect(regex()`^ $`.test(' ')).toBe(false)
 	})
 
 	it('can use \\x20 to match space', () => {
-		expect(regex`^\x20$`.test(' ')).toBe(true)
+		expect(regex()`^\x20$`.test(' ')).toBe(true)
 	})
 })
 
@@ -188,7 +184,7 @@ describe('comment removal', () => {
 	it('removes comments at start', () => {
 		const expected = /text/
 
-		const actual = regex`# comment
+		const actual = regex()`# comment
 		text
 		#comment`
 
@@ -198,7 +194,7 @@ describe('comment removal', () => {
 	it('removes comments at start of line', () => {
 		const expected = /text/
 
-		const actual = regex`text
+		const actual = regex()`text
 		# comment`
 
 		regexCompare(expected, actual)
@@ -207,7 +203,7 @@ describe('comment removal', () => {
 	it('removes comments from hash symbol to EoL', () => {
 		const expected = /abc/
 
-		const actual = regex`
+		const actual = regex()`
 			a # A
 			b # B
 			c # C ########## ...
@@ -218,7 +214,7 @@ describe('comment removal', () => {
 	it('can use \\# to escape hash symbol', () => {
 		const expected = /a#Ab#Bc#C/
 
-		const actual = regex`
+		const actual = regex()`
 			a \# A
 			b \# B
 			c \# C
@@ -230,7 +226,7 @@ describe('comment removal', () => {
 	it('cannot use \\\\# to escape hash symbol', () => {
 		const expected = /ab\\c\\#Cd\\\\/
 
-		const actual = regex`
+		const actual = regex()`
 			a # A
 			b \\# B
 			c \\\# C
@@ -245,7 +241,7 @@ describe('interpolation', () => {
 	it('interpolates numbers', () => {
 		const expected = /.{5}/
 
-		const actual = regex`.{${2 + 3}}`
+		const actual = regex()`.{${2 + 3}}`
 
 		regexCompare(expected, actual)
 	})
@@ -255,7 +251,7 @@ describe('interpolation', () => {
 
 		const expected = /.hello_world/
 
-		const actual = regex`.${str}`
+		const actual = regex()`.${str}`
 
 		regexCompare(expected, actual)
 	})
@@ -267,7 +263,7 @@ describe('interpolation', () => {
 
 		const expected = /\r\n	 /
 
-		const actual = regex`${crlf}${tab}${space}`
+		const actual = regex()`${crlf}${tab}${space}`
 
 		regexCompare(expected, actual)
 	})
@@ -277,7 +273,7 @@ describe('interpolation', () => {
 
 		const expected = /.a b c/
 
-		const actual = regex`.${re}`
+		const actual = regex()`.${re}`
 
 		regexCompare(expected, actual)
 	})
@@ -287,7 +283,27 @@ describe('interpolation', () => {
 
 		const expected = /.a b c/
 
-		const actual = regex`.${re}`
+		const actual = regex()`.${re}`
+
+		regexCompare(expected, actual)
+	})
+
+	it('interpolates alternation', () => {
+		const strs = ['hello_world', 'hello', 'hello_']
+
+		const expected = /(?:hello_world|hello_|hello)/
+
+		const actual = regex()`${strs}`
+
+		regexCompare(expected, actual)
+	})
+
+	it('interpolates lazy alternation', () => {
+		const strs = ['hello_world', 'hello', 'hello_']
+
+		const expected = /(?:hello|hello_|hello_world)/
+
+		const actual = regex()`${new LazyAlternation(strs)}`
 
 		regexCompare(expected, actual)
 	})
@@ -297,7 +313,7 @@ describe('escaping', () => {
 	it('does not require escaping for regex control chars', () => {
 		const expected = /\b\w\d\0(a)\1/
 
-		const actual = regex`\b\w\d\0(a)\1`
+		const actual = regex()`\b\w\d\0(a)\1`
 
 		regexCompare(expected, actual)
 	})
@@ -313,7 +329,7 @@ describe('escaping', () => {
 	it('can escape ` and ${', () => {
 		const expected = /`\${_\${`/
 
-		const actual = regex`\`\${_\${\``
+		const actual = regex()`\`\${_\${\``
 
 		regexCompare(expected, actual)
 	})
@@ -321,7 +337,7 @@ describe('escaping', () => {
 	it('correctly escape ` or ${ with any odd number of \\', () => {
 		const expected = /\\`\\\\\${/
 
-		const actual = regex`\\\`\\\\\${`
+		const actual = regex()`\\\`\\\\\${`
 
 		regexCompare(expected, actual)
 	})
@@ -329,7 +345,7 @@ describe('escaping', () => {
 	it('can escape spaces', () => {
 		const expected = / \\  /
 
-		const actual = regex`      \ \\\ \ `
+		const actual = regex()`      \ \\\ \ `
 
 		regexCompare(expected, actual)
 	})
@@ -337,7 +353,7 @@ describe('escaping', () => {
 	it('does not escape whitespace with even number of slashes', () => {
 		const expected = /\\\\\\/
 
-		const actual = regex`      \\ \\\\
+		const actual = regex()`      \\ \\\\
 		`
 
 		regexCompare(expected, actual)
@@ -346,7 +362,7 @@ describe('escaping', () => {
 	it('$ as end-of-string', () => {
 		const expected = /$/
 
-		const actual = regex`$`
+		const actual = regex()`$`
 
 		regexCompare(expected, actual)
 	})
@@ -354,7 +370,7 @@ describe('escaping', () => {
 	it('$ literal', () => {
 		const expected = /\$/
 
-		const actual = regex`\$`
+		const actual = regex()`\$`
 
 		regexCompare(expected, actual)
 	})
@@ -362,7 +378,7 @@ describe('escaping', () => {
 	it('${ literal', () => {
 		const expected = /\${/
 
-		const actual = regex`\${`
+		const actual = regex()`\${`
 
 		regexCompare(expected, actual)
 	})
@@ -370,18 +386,18 @@ describe('escaping', () => {
 	it('${ literal with multiple backslashes', () => {
 		const expected = /\\\${/
 
-		const actual = regex`\\\${`
+		const actual = regex()`\\\${`
 
 		regexCompare(expected, actual)
 	})
 
 	it('escaped spaces', () => {
 		const pairs = [
-			[/a b/, regex`a\ b`],
-			[/a\\b/, regex`a\\ b`],
-			[/a\\ b/, regex`a\\\ b`],
-			[/a bc d/, regex`a\ bc\ d`],
-			[/a   b/, regex`a\ \ \ b`],
+			[/a b/, regex()`a\ b`],
+			[/a\\b/, regex()`a\\ b`],
+			[/a\\ b/, regex()`a\\\ b`],
+			[/a bc d/, regex()`a\ bc\ d`],
+			[/a   b/, regex()`a\ \ \ b`],
 		]
 
 		pairs.forEach(([expected, actual]) => {
@@ -391,13 +407,13 @@ describe('escaping', () => {
 
 	it('escaped hashes', () => {
 		const pairs = [
-			[/a#b/, regex`a\#b`],
-			[/a\\/, regex`a\\#b`],
-			[/a\\#b/, regex`a\\\#b`],
-			[/a#bc/, regex`a\#bc#d`],
-			[/a#bc#d/, regex`a\#bc\#d`],
-			[/a/, regex`a#bc#d`],
-			[/a#bc d/, regex`a\#bc\ d`],
+			[/a#b/, regex()`a\#b`],
+			[/a\\/, regex()`a\\#b`],
+			[/a\\#b/, regex()`a\\\#b`],
+			[/a#bc/, regex()`a\#bc#d`],
+			[/a#bc#d/, regex()`a\#bc\#d`],
+			[/a/, regex()`a#bc#d`],
+			[/a#bc d/, regex()`a\#bc\ d`],
 		]
 
 		pairs.forEach(([expected, actual]) => {

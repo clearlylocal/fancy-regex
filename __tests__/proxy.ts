@@ -26,15 +26,13 @@ describe('proxy', () => {
 	describe('works the same as base `regex` when not using .<flag>', () => {
 		it('no flags', () => {
 			const expected = /a/
-			const actual1 = regex`a`
-			const actual2 = regex()`a`
-			const actual3 = regex('')`a`
-			const actual4 = regex({})`a`
+			const actual1 = regex()`a`
+			const actual2 = regex('')`a`
+			const actual3 = regex({})`a`
 
 			regexCompare(expected, actual1)
 			regexCompare(expected, actual2)
 			regexCompare(expected, actual3)
-			regexCompare(expected, actual4)
 		})
 
 		it('creates regex with flags as arg', () => {
