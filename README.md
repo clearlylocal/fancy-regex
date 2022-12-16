@@ -70,15 +70,15 @@ const rawInterpolation = regex()`
 // ⇒ /./
 ```
 
-Interpolated arrays are automatically converted to non-capturing groups:
+Interpolated arrays are automatically converted to non-capturing groups, sorted by length and with duplicates, `false`, and nullish values removed:
 
 ```ts
 import { RegexFragment } from 'fancy-regex'
 
 const withArray = regex()`
-	${['a', 'b', '.', new RegexFragment('.'), /./]}
+	${['aa', 'bbb', '.', new RegexFragment('.'), /./, false, null, undefined]}
 `
-// ⇒ /(?:a|b|\.|.)/
+// ⇒ /(?:bbb|aa|\.|.)/
 ```
 
 ---

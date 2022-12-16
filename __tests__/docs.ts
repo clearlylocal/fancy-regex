@@ -71,9 +71,17 @@ describe('examples from docs', () => {
 	})
 
 	it('withArray', () => {
-		const expected = /(?:a|b|\.|.|.)/
+		const expected = /(?:a|b|\.|.)/
 		const withArray = regex()`
 			${['a', 'b', '.', new RegexFragment('.'), /./]}
+		`
+		regexCompare(expected, withArray)
+	})
+
+	it('withArray', () => {
+		const expected = /(?:bbb|aa|\.|.)/
+		const withArray = regex()`
+			${['aa', 'bbb', '.', new RegexFragment('.'), /./, false, null, undefined]}
 		`
 		regexCompare(expected, withArray)
 	})

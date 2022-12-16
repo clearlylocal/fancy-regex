@@ -288,7 +288,7 @@ describe('interpolation', () => {
 		regexCompare(expected, actual)
 	})
 
-	it('interpolates alternation', () => {
+	it('interpolates alternation by length descending', () => {
 		const strs = ['hello_world', 'hello', 'hello_']
 
 		const expected = /(?:hello_world|hello_|hello)/
@@ -298,12 +298,42 @@ describe('interpolation', () => {
 		regexCompare(expected, actual)
 	})
 
-	it('interpolates lazy alternation', () => {
+	it('interpolates lazy alternation by length ascending', () => {
 		const strs = ['hello_world', 'hello', 'hello_']
 
 		const expected = /(?:hello|hello_|hello_world)/
 
 		const actual = regex()`${new LazyAlternation(strs)}`
+
+		regexCompare(expected, actual)
+	})
+
+	it('removes duplicates from alternation groups', () => {
+		const strs = ['a', 'hello', 'hello', 'hello']
+
+		const expected = /(?:hello|a)/
+
+		const actual = regex()`${strs}`
+
+		regexCompare(expected, actual)
+	})
+
+	it('removes nullish or false from alternation groups', () => {
+		const arr = ['a', null, false, undefined, , 'b']
+
+		const expected = /(?:a|b)/
+
+		const actual = regex()`${arr}`
+
+		regexCompare(expected, actual)
+	})
+
+	it('doesn’t remove 0, NaN, or empty string from alternation groups', () => {
+		const arr = ['a', '', 'b', 0, -0, BigInt(0), 'NaN']
+
+		const expected = /(?:NaN|a|b|0|)/
+
+		const actual = regex()`${arr}`
 
 		regexCompare(expected, actual)
 	})

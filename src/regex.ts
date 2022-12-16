@@ -21,6 +21,8 @@ export type RegexOptions = Partial<Record<keyof typeof flagMap, boolean>>
 
 const commentRegex = /(\\*)#(.*)/g
 
+const isContentful = (x: unknown) => x !== false && x != null
+
 const commentReplacer = (_m: string, slashes: string, after: string) => {
 	/* If odd number of backslashes, one of them is esc char */
 	if (slashes.length % 2) {
@@ -72,7 +74,7 @@ const processSub = (flags: string) => (sub: unknown) => {
 	} else if (typeof sub === 'string') {
 		return regexEscape(sub, flags)
 	} else {
-		return String(sub ?? '')
+		return String(isContentful(sub) ? sub : '')
 	}
 }
 
@@ -128,8 +130,13 @@ const _regex =
 			if (Array.isArray(sub)) {
 				const mult = sub instanceof LazyAlternation ? -1 : 1
 
-				source += `(?:${sub
-					.map(processSub(flags))
+				source += `(?:${[
+					...new Set([
+						...sub
+							.filter(isContentful)
+							.map((x) => String(processSub(flags)(x))),
+					]),
+				]
 					.sort((a, b) => mult * (regexLength(b) - regexLength(a)))
 					.join('|')})`
 			} else {
