@@ -150,6 +150,7 @@ const _regex =
 export function regex(
 	flags?: string | RegexOptions,
 ): (template: TemplateStringsArray, ...substitutions: any[]) => RegExp
+/** @deprecated For a regex with no flags, use `` regex()`...` `` instead */
 export function regex(
 	template: TemplateStringsArray,
 	...substitutions: any[]
