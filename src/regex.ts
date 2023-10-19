@@ -1,4 +1,4 @@
-import { getContextAgnosticMap, regexEscape, regexLength } from './escaping'
+import { getContextAgnosticMap, regexEscape, regexLength } from './escaping.ts'
 
 export class RegexFragment extends String {}
 
@@ -9,15 +9,27 @@ export class LazyAlternation extends Array {
 }
 
 const flagMap = {
+	hasIndices: 'd',
 	global: 'g',
 	ignoreCase: 'i',
 	multiline: 'm',
 	dotAll: 's',
-	sticky: 'y',
 	unicode: 'u',
+	unicodeSets: 'v',
+	sticky: 'y',
 } as const
 
-export type RegexOptions = Partial<Record<keyof typeof flagMap, boolean>>
+type _GenericRegexOptions = Partial<Record<keyof typeof flagMap, boolean>>
+
+type VRegexOptions = Omit<_GenericRegexOptions, 'unicode'>
+type URegexOptions = Omit<_GenericRegexOptions, 'unicodeSets'>
+
+export type RegexOptions = VRegexOptions | URegexOptions
+
+export type Flags = Exclude<
+	'_' | `${'d' | ''}${'g' | ''}${'i' | ''}${'m' | ''}${'s' | ''}${'v' | 'u' | ''}${'y' | ''}`,
+	''
+>
 
 const commentRegex = /(\\*)#(.*)/g
 
@@ -64,12 +76,10 @@ const processSub = (flags: string) => (sub: unknown) => {
 				'gi',
 			)
 
-			return !diff.length
-				? sub.source
-				: sub.source.replace(
-						re,
-						(m) => mapOut[m.startsWith('\\') ? m.slice(1) : m] ?? m,
-				  )
+			return !diff.length ? sub.source : sub.source.replace(
+				re,
+				(m) => mapOut[m.startsWith('\\') ? m.slice(1) : m] ?? m,
+			)
 		}
 	} else if (typeof sub === 'string') {
 		return regexEscape(sub, flags)
@@ -78,9 +88,8 @@ const processSub = (flags: string) => (sub: unknown) => {
 	}
 }
 
-const _regex =
-	(options: string | RegexOptions = {}) =>
-	(template: TemplateStringsArray, ...substitutions: unknown[]) => {
+const __regex =
+	(options: string | RegexOptions = {}) => (template: TemplateStringsArray, ...substitutions: unknown[]) => {
 		let source = ''
 		let flagArr: string[] = []
 
@@ -130,15 +139,17 @@ const _regex =
 			if (Array.isArray(sub)) {
 				const mult = sub instanceof LazyAlternation ? -1 : 1
 
-				source += `(?:${[
-					...new Set([
-						...sub
-							.filter(isContentful)
-							.map((x) => String(processSub(flags)(x))),
-					]),
-				]
-					.sort((a, b) => mult * (regexLength(b) - regexLength(a)))
-					.join('|')})`
+				source += `(?:${
+					[
+						...new Set([
+							...sub
+								.filter(isContentful)
+								.map((x) => String(processSub(flags)(x))),
+						]),
+					]
+						.sort((a, b) => mult * (regexLength(b) - regexLength(a)))
+						.join('|')
+				})`
 			} else {
 				source += processSub(flags)(sub)
 			}
@@ -147,25 +158,28 @@ const _regex =
 		return new RegExp(source, flags)
 	}
 
-export function regex(
-	flags?: string | RegexOptions,
-): (template: TemplateStringsArray, ...substitutions: any[]) => RegExp
+export function _regex(
+	flags?: Flags | '' | RegexOptions,
+): (template: TemplateStringsArray, ...substitutions: unknown[]) => RegExp
 /** @deprecated For a regex with no flags, use `` regex()`...` `` instead */
-export function regex(
+export function _regex(
 	template: TemplateStringsArray,
-	...substitutions: any[]
+	...substitutions: unknown[]
 ): RegExp
-export function regex(...args: any[]) {
+export function _regex(...args: unknown[]) {
 	if (Array.isArray(args[0])) {
 		const [template, ...substitutions] = args
 
-		return _regex('')(
-			template as any as TemplateStringsArray,
+		return __regex('')(
+			template as unknown as TemplateStringsArray,
 			...substitutions,
 		)
 	} else {
 		const [flags] = args
 
-		return _regex(flags)
+		return __regex(flags as Flags | '' | RegexOptions)
 	}
 }
+
+/** @deprecated Use the proxied version exported from `proxy.ts` instead */
+export const regex = _regex

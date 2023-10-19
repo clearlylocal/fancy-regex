@@ -1,7 +1,8 @@
-import { regex, RegexOptions, RegexFragment } from './regex'
+import { type Flags, RegexFragment, type RegexOptions } from './regex.ts'
+import { _regex } from './regex.ts'
 
-export function unwrap(re: RegExp, flags?: string | RegexOptions) {
+export function unwrap(re: RegExp, flags?: Flags | '' | RegexOptions) {
 	const fragment = re.source.replace(/^\^?([\s\S]*?)\$?$/, '$1')
 
-	return regex(flags ?? re.flags)`${new RegexFragment(fragment)}`
+	return _regex(flags ?? re.flags as Flags)`${new RegexFragment(fragment)}`
 }

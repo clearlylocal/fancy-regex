@@ -8,42 +8,49 @@ JS/TS regexes with whitespace, comments, and interpolation!
 
 ### `regex`
 
-`regex()` is used to create a fancy regex, which compiles to a native JavaScript `RegExp` at runtime.
+`` regex.<flags>`...` `` is used to create a fancy regex, which compiles to a native JavaScript `RegExp` at runtime.
 
 ```ts
 import { regex } from 'fancy-regex'
 
-const myFancyRegex = regex()`
-    hello,\ world!        # escaped whitespace with backslash
+const myFancyRegex = regex.v`
+    hello,\ 🌎!        # escaped whitespace with backslash
 `
-// ⇒ /hello, world!/
+// ⇒ /hello, 🌎!/v
 ```
 
-You can pass flags to `regex` first:
+You can use `_` to get a flagless regex:
 
 ```ts
-const myGlobalRegex = regex('gu')`🌎`
-// ⇒ /🌎/gu
+const myGlobalRegex = regex._`flagless`
+// ⇒ /flagless/
 ```
 
-If you like, you can also pass an options object instead of string flags:
+If you like, you can pass string flags or use an options object instead:
 
 ```ts
+const myRegexWithStringFlags = regex('gv')`
+    ^
+        💩+    # with unicode enabled, this matches by codepoint
+    $
+`
+// ⇒ /^💩+$/gv
+
 const myRegexWithOptions = regex({
-    unicode: true,
+    unicodeSets: true,
     global: true,
 })`
     ^
         💩+    # with unicode enabled, this matches by codepoint
     $
 `
-// ⇒ /^💩+$/gu
+// ⇒ /^💩+$/gv
 ```
 
 Interpolation is simple, with escaping of interpolated strings handled automatically:
 
 ```ts
-const myInterpolatedRegex = regex('iu')`
+const myInterpolatedRegex = regex.iv`
     ^
         ${'abc.'}         # seamlessly interpolate strings...
         ${myFancyRegex}   # ...and other regexes
@@ -56,7 +63,7 @@ const myInterpolatedRegex = regex('iu')`
         \r\n\t\x20        # you can also use "\x20" to match a literal space
     $
 `
-// ⇒ /^abc\.hello, world!🌎\w\d\b\0\\...\r\n\t\x20$/iu
+// ⇒ /^abc\.hello, world!🌎\w\d\b\0\\...\r\n\t\x20$/iv
 ```
 
 If you want to interpolate a string you want to be interpreted as raw regex source, you'll need to wrap it in a `RegexFragment` first:
@@ -64,10 +71,10 @@ If you want to interpolate a string you want to be interpreted as raw regex sour
 ```ts
 import { RegexFragment } from 'fancy-regex'
 
-const rawInterpolation = regex()`
+const rawInterpolation = regex.v`
 	${new RegexFragment('.')}
 `
-// ⇒ /./
+// ⇒ /./v
 ```
 
 Interpolated arrays are automatically converted to non-capturing groups, sorted by length and with duplicates, `false`, and nullish values removed:
@@ -75,10 +82,10 @@ Interpolated arrays are automatically converted to non-capturing groups, sorted 
 ```ts
 import { RegexFragment } from 'fancy-regex'
 
-const withArray = regex()`
+const withArray = regex.v`
 	${['aa', 'bbb', '.', new RegexFragment('.'), /./, false, null, undefined]}
 `
-// ⇒ /(?:bbb|aa|\.|.)/
+// ⇒ /(?:bbb|aa|\.|.)/v
 ```
 
 ---
@@ -90,12 +97,12 @@ const withArray = regex()`
 Removes start-of-string and end-of-string matchers from a regex. Useful for interpolating or repurposing single-match regexes:
 
 ```ts
-const singleHex = /^[0-9a-f]$/i
+const singleHex = /^[0-9a-f]$/vi
 
 const hex = unwrap(singleHex)
-// ⇒ /[0-9a-f]/i
+// ⇒ /[0-9a-f]/vi
 
-const singleUuid = regex`
+const singleUuid = regex.v`
     ^
         ${hex}{8}
         -
@@ -108,41 +115,18 @@ const singleUuid = regex`
         ${hex}{12}
     $
 `
-// ⇒ /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
+// ⇒ /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/v
 
-const multipleUuid = unwrap(singleUuid, 'g')
-// ⇒ /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/g
-```
-
----
-
-### Experimental Proxy API
-
-To enable the experimental [Proxy](https://developer.mozilla.org/en-us/docs/Web/JavaScript/Reference/Global_Objects/Proxy)-based API, which provides syntax sugar for setting flags, change the `import` statement as follows:
-
-```diff
-- import { regex } from 'fancy-regex'
-+ import { proxy as regex } from 'fancy-regex'
-```
-
-You can then use the syntax `` regex.<flags>`...` `` as an additional alternative to `` regex('<flags>')`...` ``. For example:
-
-```ts
-regex.gi`
-	${'I have global and ignore-case flags set!'}
-`
-
-regex._`
-	${'_ can be used to indicate no flags'}
-`
+const multipleUuid = unwrap(singleUuid, 'gv')
+// ⇒ /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gv
 ```
 
 Note that, if you're using TypeScript, the type checking for this syntax requires that the flags are given in alphabetical order:
 
 ```ts
 // OK!
-regex.gimsuy`👍`
+regex.gimsvy`👍`
 
-// Property 'yusmig' does not exist on type [...]
-regex.yusmig`⛔`
+// Property 'yvsmig' does not exist on type [...]
+regex.yvsmig`⛔`
 ```

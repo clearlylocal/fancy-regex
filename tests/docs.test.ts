@@ -1,7 +1,7 @@
-import { regex, exact, unwrap, RegexFragment } from '../src'
-import { regexCompare } from './helpers/regexCompare'
+import { assert, assertEquals } from 'std/assert/mod.ts'
+import { exact, regex, RegexFragment, unwrap } from '../src/mod.ts'
 
-describe('examples from docs', () => {
+Deno.test('examples from docs', async (t) => {
 	const uuids = [
 		'00ac35a2-44ff-4694-84b3-f378d8f0cd0e',
 		'edf9e977-1df2-45cc-8144-40572e9632ad',
@@ -39,54 +39,55 @@ describe('examples from docs', () => {
 			$
 		`
 
-	it('myFancyRegex', () => {
+	await t.step('myFancyRegex', () => {
 		const expected = /hello, world!/
 
-		regexCompare(expected, myFancyRegex)
+		assertEquals(expected, myFancyRegex)
 	})
 
-	it('myInterpolatedRegex', () => {
+	await t.step('myInterpolatedRegex', () => {
 		const expected = /^abc\.hello, world!🌎\w\d\b\0\\...\r\n\t\x20$/iu
 
-		regexCompare(expected, myInterpolatedRegex)
+		assertEquals(expected, myInterpolatedRegex)
 	})
 
-	it('myRegexWithOptions', () => {
+	await t.step('myRegexWithOptions', () => {
 		const expected = /^💩+$/gu
 
-		regexCompare(expected, myRegexWithOptions)
+		assertEquals(expected, myRegexWithOptions)
 	})
 
-	it('exact', () => {
-		expect(exact('.[xy]').test('.[xy]')).toBe(true)
-		expect(exact('.[xy]').test('ax')).toBe(false)
+	await t.step('exact', () => {
+		assert(exact('.[xy]').test('.[xy]') === true)
+		assert(exact('.[xy]').test('ax') === false)
 	})
 
-	it('rawInterpolation', () => {
+	await t.step('rawInterpolation', () => {
 		const expected = /./
 		const rawInterpolation = regex()`
 			${new RegexFragment('.')}
 		`
-		regexCompare(expected, rawInterpolation)
+		assertEquals(expected, rawInterpolation)
 	})
 
-	it('withArray', () => {
+	await t.step('withArray old', () => {
 		const expected = /(?:a|b|\.|.)/
 		const withArray = regex()`
 			${['a', 'b', '.', new RegexFragment('.'), /./]}
 		`
-		regexCompare(expected, withArray)
+		assertEquals(expected, withArray)
 	})
 
-	it('withArray', () => {
-		const expected = /(?:bbb|aa|\.|.)/
-		const withArray = regex()`
+	await t.step('withArray', () => {
+		const expected = new RegExp(String.raw`(?:bbb|aa|\.|.)`, 'v')
+		const withArray = regex.v`
 			${['aa', 'bbb', '.', new RegexFragment('.'), /./, false, null, undefined]}
 		`
-		regexCompare(expected, withArray)
+
+		assertEquals(expected, withArray)
 	})
 
-	describe('uuid (unwrap)', () => {
+	await t.step('uuid (unwrap)', async (t) => {
 		const singleHex = /^[0-9a-f]$/i
 
 		const hex = unwrap(singleHex)
@@ -107,20 +108,18 @@ describe('examples from docs', () => {
 
 		const multipleUuid = unwrap(singleUuid, 'g')
 
-		it('hex', () => {
-			regexCompare(hex, /[0-9a-f]/i)
+		await t.step('hex', () => {
+			assertEquals(hex, /[0-9a-f]/i)
 		})
 
-		it('singleUuid', () => {
+		await t.step('singleUuid', () => {
 			uuids.forEach((uuid) => {
-				expect(uuid).toMatch(singleUuid)
+				assert(singleUuid.test(uuid))
 			})
 		})
 
-		it('multipleUuid', () => {
-			expect(uuids.join(' ').match(multipleUuid)).toHaveLength(
-				uuids.length,
-			)
+		await t.step('multipleUuid', () => {
+			assert(uuids.join(' ').match(multipleUuid)?.length === uuids.length)
 		})
 	})
 })

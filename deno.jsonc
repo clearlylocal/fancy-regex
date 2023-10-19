@@ -1,0 +1,40 @@
+{
+	"lock": false,
+	"tasks": {
+		"test": "deno test -A ./tests",
+		// VERSION=x.x.x deno task npm-build
+		"npm-build": "deno run -A ./scripts/build_npm.ts",
+		// VERSION=x.x.x deno task npm-publish
+		"npm-publish": "deno task npm-build && cd npm && npm publish && cd -"
+	},
+	"imports": {
+		"std/": "https://deno.land/std@0.204.0/"
+	},
+	"fmt": {
+		"semiColons": false,
+		"useTabs": true,
+		"lineWidth": 120,
+		"indentWidth": 4,
+		"singleQuote": true,
+		"proseWrap": "preserve",
+		"exclude": [
+			"npm",
+			"*.md"
+		]
+	},
+	"compilerOptions": {
+		"jsx": "react-jsx",
+		"jsxImportSource": "preact",
+		"strict": true
+	},
+	"lint": {
+		"rules": {
+			"tags": [
+				"recommended"
+			]
+		},
+		"exclude": [
+			"npm"
+		]
+	}
+}

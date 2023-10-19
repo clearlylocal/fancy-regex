@@ -1,0 +1,7 @@
+{
+	"deno.enable": true,
+	"deno.cacheOnSave": true,
+	"editor.formatOnSave": true,
+	"deno.lint": true,
+	"deno.unstable": true
+}

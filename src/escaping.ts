@@ -1,4 +1,5 @@
-import { regex, RegexFragment, RegexOptions } from './regex'
+import { _regex } from './regex.ts'
+import { type Flags, RegexFragment, type RegexOptions } from './regex.ts'
 
 const asciis = Array.from({ length: 0x80 }, (_, i) => String.fromCodePoint(i))
 
@@ -11,10 +12,12 @@ const getChars = (flags: string) => {
 
 	return asciis
 		.map((ch) => {
-			const escaped = `\\x${ch
-				.codePointAt(0)!
-				.toString(16)
-				.padStart(2, '0')}`
+			const escaped = `\\x${
+				ch
+					.codePointAt(0)!
+					.toString(16)
+					.padStart(2, '0')
+			}`
 
 			let inClass = escaped
 			let outsideClass = escaped
@@ -121,8 +124,8 @@ export function regexEscape(input: string, flags = 'u') {
 	return new RegexFragment(replacer(input))
 }
 
-export function exact(input: string, flags?: string | RegexOptions) {
-	return regex(flags)`${input}`
+export function exact(input: string, flags?: Flags | '' | RegexOptions) {
+	return _regex(flags)`${input}`
 }
 
 /**
