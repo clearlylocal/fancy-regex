@@ -1,4 +1,5 @@
 import { assert } from 'std/assert/mod.ts'
+import { join } from 'std/path/mod.ts'
 import { build, emptyDir } from 'https://deno.land/x/dnt@0.38.1/mod.ts'
 
 const outDir = './npm'
@@ -24,11 +25,12 @@ await build({
 		scripts: {},
 		author: 'https://github.com/lionel-rowe',
 		license: 'MIT',
-		repository: 'https://github.com/lionel-rowe/fancy-regex',
+		repository: 'https://github.com/clearlylocal/fancy-regex',
 	},
 	postBuild() {
 		// steps to run after building and before running the tests
-		Deno.copyFileSync('LICENSE', 'npm/LICENSE')
-		Deno.copyFileSync('README.md', 'npm/README.md')
+		for (const fileName of ['LICENSE', 'README.md']) {
+			Deno.copyFileSync(fileName, join(outDir, fileName))
+		}
 	},
 })

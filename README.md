@@ -8,35 +8,44 @@ JS/TS regexes with whitespace, comments, and interpolation!
 
 ### `regex`
 
-`` regex.<flags>`...` `` is used to create a fancy regex, which compiles to a native JavaScript `RegExp` at runtime.
+`` regex.<flags>`...` `` is used to create a fancy regex, which compiles to a native JavaScript `RegExp` at runtime. Fancy regexes strip all literal white space and comments starting with a `#`.
 
 ```ts
 import { regex } from 'fancy-regex'
+import { assertEquals, assertMatch, assertNotEquals, assertThrows } from 'std/assert/mod.ts'
 
 const myFancyRegex = regex.v`
-    hello,\ 🌎!        # escaped whitespace with backslash
+    hello,\ 🌎!        # space escaped with backslash becomes a literal space
 `
-// ⇒ /hello, 🌎!/v
+assertEquals(myFancyRegex, /hello, 🌎!/v)
 ```
 
-You can use `_` to get a flagless regex:
+You can use `_` to create a flagless regex.
 
 ```ts
-const myGlobalRegex = regex._`flagless`
-// ⇒ /flagless/
+const flaglessRe = regex._`flagless`
+assertEquals(flaglessRe, /flagless/)
 ```
 
-If you like, you can pass string flags or use an options object instead:
+If you're using TypeScript, flags must be supplied in alphabetical order to pass type checking.
 
 ```ts
-const myRegexWithStringFlags = regex('gv')`
-    ^
-        💩+    # with unicode enabled, this matches by codepoint
-    $
-`
-// ⇒ /^💩+$/gv
+// OK!
+regex.gimsvy`👍`
 
-const myRegexWithOptions = regex({
+// @ts-expect-error Property 'yvsmig' does not exist on type <...>
+regex.yvsmig`⛔`
+```
+
+If you like, you can pass string flags or use an options object instead.
+
+```ts
+const globalRe = regex('gv')`
+    💩+    # with unicode enabled, this matches by codepoint
+`
+assertEquals(globalRe, /💩+/gv)
+
+const withOptionsObject = regex({
     unicodeSets: true,
     global: true,
 })`
@@ -44,63 +53,91 @@ const myRegexWithOptions = regex({
         💩+    # with unicode enabled, this matches by codepoint
     $
 `
-// ⇒ /^💩+$/gv
+assertEquals(withOptionsObject, /^💩+$/gv)
 ```
 
-Interpolation is simple, with escaping of interpolated strings handled automatically:
+Interpolation is simple, with escaping of interpolated strings handled automatically.
 
 ```ts
-const myInterpolatedRegex = regex.iv`
-    ^
-        ${'abc.'}         # seamlessly interpolate strings...
-        ${myFancyRegex}   # ...and other regexes
-        ${myGlobalRegex}  # inner flags are ignored when interpolated
-
-        \w\d\b\0\\        # look Mom, no double escaping!
-
-        ...
-
-        \r\n\t\x20        # you can also use "\x20" to match a literal space
-    $
+const interpolatedRe = regex.iv`
+    ${'[abc]'}        # seamlessly interpolate strings...
+    .
+    ${/[abc]/}        # ...and other regexes
+    .
+    ${/[abc]/g}       # inner flags are ignored when interpolated
 `
-// ⇒ /^abc\.hello, world!🌎\w\d\b\0\\...\r\n\t\x20$/iv
+assertEquals(interpolatedRe, /\[abc\].[abc].[abc]/iv)
 ```
 
-If you want to interpolate a string you want to be interpreted as raw regex source, you'll need to wrap it in a `RegexFragment` first:
+Regex escapes (`\b`, `\w`, etc.) are supported.
 
 ```ts
+const escapedRe = regex.iv`
+    \w\d\b\0\\        # look Mom, no double escaping!
+    \r\n\t\x20        # "\x20" matches a literal space
+`
+assertEquals(escapedRe, /\w\d\b\0\\\r\n\t\x20/iv)
+```
+
+You can also escape literal white space, hash symbols `#`, or the sequence `${`, by preceding them with a backslash.
+
+```ts
+const escapedRe2 = regex.v`\#\ \$\{`
+assertEquals(escapedRe2, /# \$\{/v)
+assertMatch('# ${', escapedRe2)
+```
+
+If you want to interpolate a string you want to be interpreted as raw regex source fragment, you'll need to wrap it in a `RegexFragment` first.
+
+For example, we would need to use this approach if we wanted to dynamically interpolate create a quantifier `{3}` that isn't syntactically valid as a standalone regex, such that the desired result is `/^a{3}$/v`:
+
+```ts
+const expected = /^a{3}$/v
+const attempt1 = regex.v`^a${'{3}'}$`
+
+assertNotEquals(attempt1, expected)
+assertEquals(attempt1, /^a\{3\}$/v)
+
+assertThrows(
+    () => {
+        const attempt2 = regex.v`^a${regex.v`{3}`}$`
+    },
+    SyntaxError,
+    'Invalid regular expression: /{3}/v: Nothing to repeat',
+)
+
 import { RegexFragment } from 'fancy-regex'
 
-const rawInterpolation = regex.v`
-	${new RegexFragment('.')}
-`
-// ⇒ /./v
+const success = regex.v`^a${new RegexFragment('{3}')}$`
+
+assertEquals(success, expected)
+assertMatch('aaa', success)
 ```
 
-Interpolated arrays are automatically converted to non-capturing groups, sorted by length and with duplicates, `false`, and nullish values removed:
+Interpolated arrays are automatically converted to non-capturing groups, sorted by length. Duplicate values, `false`, and nullish values are removed.
 
 ```ts
-import { RegexFragment } from 'fancy-regex'
-
 const withArray = regex.v`
-	${['aa', 'bbb', '.', new RegexFragment('.'), /./, false, null, undefined]}
+    ${['aa', 'bbb', '.', new RegexFragment('.'), /./, false, null, undefined]}
 `
-// ⇒ /(?:bbb|aa|\.|.)/v
+assertEquals(withArray, /(?:bbb|aa|\.|.)/v)
 ```
 
 ---
 
-`regex` also provides the utility function `unwrap`.
+`fancy-regex` also provides the utility function `unwrap`.
 
 ### `unwrap`
 
 Removes start-of-string and end-of-string matchers from a regex. Useful for interpolating or repurposing single-match regexes:
 
 ```ts
+import { unwrap } from 'fancy-regex'
+
 const singleHex = /^[0-9a-f]$/vi
 
 const hex = unwrap(singleHex)
-// ⇒ /[0-9a-f]/vi
+assertEquals(hex, /[0-9a-f]/vi)
 
 const singleUuid = regex.v`
     ^
@@ -115,18 +152,8 @@ const singleUuid = regex.v`
         ${hex}{12}
     $
 `
-// ⇒ /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/v
+assertEquals(singleUuid, /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/v)
 
 const multipleUuid = unwrap(singleUuid, 'gv')
-// ⇒ /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gv
-```
-
-Note that, if you're using TypeScript, the type checking for this syntax requires that the flags are given in alphabetical order:
-
-```ts
-// OK!
-regex.gimsvy`👍`
-
-// Property 'yvsmig' does not exist on type [...]
-regex.yvsmig`⛔`
+assertEquals(multipleUuid, /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gv)
 ```

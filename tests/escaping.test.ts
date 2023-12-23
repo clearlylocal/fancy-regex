@@ -94,7 +94,7 @@ Deno.test('exact', async (t) => {
 
 		const actual = exact('\r\n ')
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('dot matches only literal dot', () => {
@@ -112,7 +112,7 @@ Deno.test('exact', async (t) => {
 
 		const actual = exact('', 'gimsuy')
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('works with options', () => {
@@ -120,7 +120,7 @@ Deno.test('exact', async (t) => {
 
 		const actual = exact('', { sticky: true })
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('works case insensitive', () => {
@@ -142,4 +142,61 @@ Deno.test('exact', async (t) => {
 
 		assert(input.replace(re, '!') === expected)
 	})
+
+	await t.step('interpolated {} in flagless regex', () => {
+		const expected = /.{1}/
+
+		const actual = regex._`${/.{1}/}`
+
+		assertEquals(actual, expected)
+	})
+
+	await t.step('interpolated {} in `i` regex', () => {
+		const expected = /.{1}/i
+
+		const actual = regex.i`${/.{1}/i}`
+
+		assertEquals(actual, expected)
+	})
+
+	await t.step('interpolated {} in `u` regex', () => {
+		const expected = /.{1}/u
+
+		const actual = regex.u`${/.{1}/u}`
+
+		assertEquals(actual, expected)
+	})
+
+	await t.step('interpolated {} in `v` regex', () => {
+		const expected = new RegExp(String.raw`.{1}`, 'v')
+
+		const actual = regex.v`${new RegExp(String.raw`.{1}`, 'v')}`
+
+		assertEquals(actual, expected)
+	})
+
+	await t.step('interpolated {} in `iu` regex', () => {
+		const expected = /.{1}/iu
+
+		const actual = regex.iu`${/.{1}/iu}`
+
+		assertEquals(actual, expected)
+	})
+
+	await t.step('interpolated {} in `iv` regex', () => {
+		const expected = new RegExp(String.raw`.{1}`, 'iv')
+
+		const actual = regex.iv`${new RegExp(String.raw`.{1}`, 'iv')}`
+
+		assertEquals(actual, expected)
+	})
+
+	// // TODO: should this be passing? what should behavior be?
+	// await t.step('interpolated flagless {} in `u` regex', () => {
+	// 	const expected = /.{1}/u
+
+	// 	const actual = regex.u`${/.{1}/}`
+
+	// 	assertEquals(actual, expected)
+	// })
 })

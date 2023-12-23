@@ -7,7 +7,7 @@ Deno.test('unwrap', async (t) => {
 		const expected = /./
 		const actual = unwrap(re)
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('unwraps start-only', () => {
@@ -15,7 +15,7 @@ Deno.test('unwrap', async (t) => {
 		const expected = /./
 		const actual = unwrap(re)
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('unwraps end-only', () => {
@@ -23,7 +23,7 @@ Deno.test('unwrap', async (t) => {
 		const expected = /./
 		const actual = unwrap(re)
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('is no-op on already-unwrapped', () => {
@@ -31,7 +31,7 @@ Deno.test('unwrap', async (t) => {
 		const expected = re
 		const actual = unwrap(expected)
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('is idempotent', () => {
@@ -39,7 +39,7 @@ Deno.test('unwrap', async (t) => {
 		const expected = /./
 		const actual = unwrap(unwrap(unwrap(unwrap(re))))
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('is reversible', () => {
@@ -47,7 +47,7 @@ Deno.test('unwrap', async (t) => {
 		const expected = re
 		const actual = regex`^${unwrap(re)}$`
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('preserves flags by default', () => {
@@ -55,7 +55,7 @@ Deno.test('unwrap', async (t) => {
 		const expected = /./gimsuy
 		const actual = unwrap(re)
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('can override flags with string', () => {
@@ -63,7 +63,7 @@ Deno.test('unwrap', async (t) => {
 		const expected = /./suy
 		const actual = unwrap(re, 'suy')
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('can override flags with options', () => {
@@ -75,7 +75,7 @@ Deno.test('unwrap', async (t) => {
 			sticky: true,
 		})
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('preserves whitespace', () => {
@@ -85,6 +85,6 @@ Deno.test('unwrap', async (t) => {
 		const expected = /   /
 		const actual = unwrap(re)
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 })

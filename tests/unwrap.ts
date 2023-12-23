@@ -1,6 +1,6 @@
-import { assert } from 'std/assert/assert.ts'
+// deno-lint-ignore-file no-regex-spaces
+import { assertEquals } from 'std/assert/mod.ts'
 import { regex, unwrap } from '../src/mod.ts'
-import { regexCompare } from './helpers/regexCompare.ts'
 
 Deno.test('unwrap', async (t) => {
 	await t.step('unwraps', () => {
@@ -8,7 +8,7 @@ Deno.test('unwrap', async (t) => {
 		const expected = /./
 		const actual = unwrap(re)
 
-		regexCompare(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('unwraps start-only', () => {
@@ -16,7 +16,7 @@ Deno.test('unwrap', async (t) => {
 		const expected = /./
 		const actual = unwrap(re)
 
-		regexCompare(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('unwraps end-only', () => {
@@ -24,7 +24,7 @@ Deno.test('unwrap', async (t) => {
 		const expected = /./
 		const actual = unwrap(re)
 
-		regexCompare(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('is no-op on already-unwrapped', () => {
@@ -32,7 +32,7 @@ Deno.test('unwrap', async (t) => {
 		const expected = re
 		const actual = unwrap(expected)
 
-		regexCompare(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('is idempotent', () => {
@@ -40,7 +40,7 @@ Deno.test('unwrap', async (t) => {
 		const expected = /./
 		const actual = unwrap(unwrap(unwrap(unwrap(re))))
 
-		regexCompare(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('is reversible', () => {
@@ -48,7 +48,7 @@ Deno.test('unwrap', async (t) => {
 		const expected = re
 		const actual = regex`^${unwrap(re)}$`
 
-		regexCompare(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('preserves flags by default', () => {
@@ -56,7 +56,7 @@ Deno.test('unwrap', async (t) => {
 		const expected = /./gimsuy
 		const actual = unwrap(re)
 
-		regexCompare(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('can override flags with string', () => {
@@ -64,7 +64,7 @@ Deno.test('unwrap', async (t) => {
 		const expected = /./suy
 		const actual = unwrap(re, 'suy')
 
-		regexCompare(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('can override flags with options', () => {
@@ -76,7 +76,7 @@ Deno.test('unwrap', async (t) => {
 			sticky: true,
 		})
 
-		regexCompare(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('preserves whitespace', () => {
@@ -84,6 +84,6 @@ Deno.test('unwrap', async (t) => {
 		const expected = /   /
 		const actual = unwrap(re)
 
-		regexCompare(expected, actual)
+		assertEquals(actual, expected)
 	})
 })

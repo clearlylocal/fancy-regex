@@ -51,7 +51,7 @@ Deno.test('no flags', async (t) => {
 
 		const actual = regex()``
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('empty regex with non-capturing group', () => {
@@ -59,7 +59,7 @@ Deno.test('no flags', async (t) => {
 
 		const actual = regex()`(?:)`
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('simple', () => {
@@ -67,7 +67,7 @@ Deno.test('no flags', async (t) => {
 
 		const actual = regex()`.+`
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('complex', () => {
@@ -77,7 +77,7 @@ Deno.test('no flags', async (t) => {
 			\0\b\t\r\n\\ # comment
 		`
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 })
 
@@ -87,7 +87,7 @@ Deno.test('string flags', async (t) => {
 
 		const actual = regex('gimsuy')``
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('all flags', () => {
@@ -95,7 +95,7 @@ Deno.test('string flags', async (t) => {
 
 		const actual = regex('gimsuy')``
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('stable ordering of flags', () => {
@@ -103,7 +103,7 @@ Deno.test('string flags', async (t) => {
 
 		const actual = regex('yusmig' as 'gimsuy')``
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('stable ordering of flags #2', () => {
@@ -111,7 +111,7 @@ Deno.test('string flags', async (t) => {
 
 		const actual = regex('gimsuy')``
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('reject invalid flags', () => {
@@ -129,7 +129,7 @@ Deno.test('options object', async (t) => {
 
 		const actual = regex({})``
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('all flags', () => {
@@ -144,7 +144,7 @@ Deno.test('options object', async (t) => {
 			unicode: true,
 		})``
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 })
 
@@ -157,7 +157,7 @@ Deno.test('whitespace collapsing', async (t) => {
 
 		`
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('collapse to content-only', () => {
@@ -170,7 +170,7 @@ Deno.test('whitespace collapsing', async (t) => {
 
 		`
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('cannot use literal space', () => {
@@ -190,7 +190,7 @@ Deno.test('comment removal', async (t) => {
 		text
 		#comment`
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('removes comments at start of line', () => {
@@ -199,7 +199,7 @@ Deno.test('comment removal', async (t) => {
 		const actual = regex()`text
 		# comment`
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('removes comments from hash symbol to EoL', () => {
@@ -210,7 +210,7 @@ Deno.test('comment removal', async (t) => {
 			b # B
 			c # C ########## ...
 		`
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('can use \\# to escape hash symbol', () => {
@@ -222,7 +222,7 @@ Deno.test('comment removal', async (t) => {
 			c \# C
 		`
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('cannot use \\\\# to escape hash symbol', () => {
@@ -235,7 +235,7 @@ Deno.test('comment removal', async (t) => {
 			d \\\\# D
 		`
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 })
 
@@ -245,7 +245,7 @@ Deno.test('interpolation', async (t) => {
 
 		const actual = regex()`.{${2 + 3}}`
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('interpolates strings', () => {
@@ -255,7 +255,7 @@ Deno.test('interpolation', async (t) => {
 
 		const actual = regex()`.${str}`
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('preserves whitespace in interpolated string', () => {
@@ -267,7 +267,7 @@ Deno.test('interpolation', async (t) => {
 
 		const actual = regex()`${crlf}${tab}${space}`
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('interpolates other regexes', () => {
@@ -277,7 +277,7 @@ Deno.test('interpolation', async (t) => {
 
 		const actual = regex()`.${re}`
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('ignores flags for inner regexes', () => {
@@ -287,7 +287,7 @@ Deno.test('interpolation', async (t) => {
 
 		const actual = regex()`.${re}`
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('interpolates alternation by length descending', () => {
@@ -297,7 +297,7 @@ Deno.test('interpolation', async (t) => {
 
 		const actual = regex()`${strs}`
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('interpolates lazy alternation by length ascending', () => {
@@ -307,7 +307,7 @@ Deno.test('interpolation', async (t) => {
 
 		const actual = regex()`${new LazyAlternation(strs)}`
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('removes duplicates from alternation groups', () => {
@@ -317,7 +317,7 @@ Deno.test('interpolation', async (t) => {
 
 		const actual = regex()`${strs}`
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('removes nullish or false from alternation groups', () => {
@@ -327,7 +327,7 @@ Deno.test('interpolation', async (t) => {
 
 		const actual = regex()`${arr}`
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('doesn’t remove 0, NaN, or empty string from alternation groups', () => {
@@ -337,7 +337,7 @@ Deno.test('interpolation', async (t) => {
 
 		const actual = regex()`${arr}`
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 })
 
@@ -347,7 +347,7 @@ Deno.test('escaping', async (t) => {
 
 		const actual = regex()`\b\w\d\0(a)\1`
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('does not require escaping for unicode properties', () => {
@@ -355,7 +355,7 @@ Deno.test('escaping', async (t) => {
 
 		const actual = regex('u')`\p{C}`
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('can escape ` and ${', () => {
@@ -363,7 +363,7 @@ Deno.test('escaping', async (t) => {
 
 		const actual = regex()`\`\${_\${\``
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('correctly escape ` or ${ with any odd number of \\', () => {
@@ -371,7 +371,7 @@ Deno.test('escaping', async (t) => {
 
 		const actual = regex()`\\\`\\\\\${`
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('can escape spaces', () => {
@@ -380,7 +380,7 @@ Deno.test('escaping', async (t) => {
 
 		const actual = regex()`      \ \\\ \ `
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('does not escape whitespace with even number of slashes', () => {
@@ -389,7 +389,7 @@ Deno.test('escaping', async (t) => {
 		const actual = regex()`      \\ \\\\
 		`
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('$ as end-of-string', () => {
@@ -397,7 +397,7 @@ Deno.test('escaping', async (t) => {
 
 		const actual = regex()`$`
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('$ literal', () => {
@@ -405,7 +405,7 @@ Deno.test('escaping', async (t) => {
 
 		const actual = regex()`\$`
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('${ literal', () => {
@@ -413,7 +413,7 @@ Deno.test('escaping', async (t) => {
 
 		const actual = regex()`\${`
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('${ literal with multiple backslashes', () => {
@@ -421,7 +421,7 @@ Deno.test('escaping', async (t) => {
 
 		const actual = regex()`\\\${`
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('escaped spaces', () => {
@@ -435,7 +435,7 @@ Deno.test('escaping', async (t) => {
 		]
 
 		pairs.forEach(([expected, actual]) => {
-			assertEquals(expected, actual)
+			assertEquals(actual, expected)
 		})
 	})
 
@@ -451,7 +451,7 @@ Deno.test('escaping', async (t) => {
 		]
 
 		pairs.forEach(([expected, actual]) => {
-			assertEquals(expected, actual)
+			assertEquals(actual, expected)
 		})
 	})
 })

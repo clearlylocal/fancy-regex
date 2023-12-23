@@ -6,21 +6,21 @@ Deno.test('proxy', async (t) => {
 		const expected = /a/
 		const actual = regex._`a`
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('creates regex with a flag using .<flag> ', () => {
 		const expected = /a/g
 		const actual = regex.g`a`
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('creates regex with all flags using .<flags>', () => {
 		const expected = /a/gimsuy
 		const actual = regex.gimsuy`a`
 
-		assertEquals(expected, actual)
+		assertEquals(actual, expected)
 	})
 
 	await t.step('works the same as base `regex` when not using .<flag>', async (t) => {
@@ -30,23 +30,23 @@ Deno.test('proxy', async (t) => {
 			const actual2 = regex('')`a`
 			const actual3 = regex({})`a`
 
-			assertEquals(expected, actual1)
-			assertEquals(expected, actual2)
-			assertEquals(expected, actual3)
+			assertEquals(actual1, expected)
+			assertEquals(actual2, expected)
+			assertEquals(actual3, expected)
 		})
 
 		await t.step('creates regex with flags as arg', () => {
 			const expected = /a/g
 			const actual = regex('g')`a`
 
-			assertEquals(expected, actual)
+			assertEquals(actual, expected)
 		})
 
 		await t.step('creates regex with options as arg', () => {
 			const expected = /a/m
 			const actual = regex({ multiline: true })`a`
 
-			assertEquals(expected, actual)
+			assertEquals(actual, expected)
 		})
 
 		await t.step('collapses whitespace as normal', () => {
@@ -54,8 +54,8 @@ Deno.test('proxy', async (t) => {
 			const actual1 = regex.g`  .  `
 			const actual2 = regex('g')`  .  `
 
-			assertEquals(expected, actual1)
-			assertEquals(expected, actual2)
+			assertEquals(actual1, expected)
+			assertEquals(actual2, expected)
 		})
 
 		await t.step('interpolates as normal', () => {
@@ -63,8 +63,8 @@ Deno.test('proxy', async (t) => {
 			const actual1 = regex.g`${expected}`
 			const actual2 = regex('g')`${expected}`
 
-			assertEquals(expected, actual1)
-			assertEquals(expected, actual2)
+			assertEquals(actual1, expected)
+			assertEquals(actual2, expected)
 		})
 	})
 })
