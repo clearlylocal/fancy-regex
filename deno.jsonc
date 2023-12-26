@@ -1,9 +1,9 @@
 {
 	"lock": false,
 	"tasks": {
-		"test": "deno test -A --watch ./tests",
+		"test": "deno run -A scripts/test_runner.ts --watch",
 		// VERSION=x.x.x deno task npm-build
-		"npm-build": "deno test -A ./tests && deno run -A ./scripts/build_npm.ts",
+		"npm-build": "deno run -A scripts/test_runner.ts && deno run -A ./scripts/build_npm.ts",
 		// VERSION=x.x.x deno task npm-publish
 		"npm-publish": "deno task npm-build && cd npm && npm publish && cd -"
 	},

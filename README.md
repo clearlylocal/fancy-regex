@@ -1,6 +1,6 @@
 # fancy-regex
 
-JS/TS regexes with whitespace, comments, and interpolation!
+💄 Fancy 💅 JS/TS regexes with whitespace, comments, and interpolation!
 
 [`npm i fancy-regex`](https://www.npmjs.com/package/fancy-regex)
 
@@ -8,7 +8,7 @@ JS/TS regexes with whitespace, comments, and interpolation!
 
 ### `regex`
 
-`` regex.<flags>`...` `` is used to create a fancy regex, which compiles to a native JavaScript `RegExp` at runtime. Fancy regexes strip all literal white space and comments starting with a `#`.
+`` regex.<flags>`...` `` creates a native JavaScript `RegExp` object. Regexes created with this function strip all literal white space, as well as all comments starting with a `#`.
 
 ```ts
 import { regex } from 'fancy-regex'
@@ -20,7 +20,7 @@ const myFancyRegex = regex.v`
 assertEquals(myFancyRegex, /hello, 🌎!/v)
 ```
 
-You can use `_` to create a flagless regex.
+You can use `_` to create a regex with no flags.
 
 ```ts
 const flaglessRe = regex._`flagless`
@@ -79,12 +79,26 @@ const escapedRe = regex.iv`
 assertEquals(escapedRe, /\w\d\b\0\\\r\n\t\x20/iv)
 ```
 
-You can also escape literal white space, hash symbols `#`, or the sequence `${`, by preceding them with a backslash.
+You can also escape literal white space, hash symbols `#`, backticks `` ` ``, or the sequence `${`, by preceding them with a backslash.
 
 ```ts
-const escapedRe2 = regex.v`\#\ \$\{`
-assertEquals(escapedRe2, /# \$\{/v)
-assertMatch('# ${', escapedRe2)
+const escapedRe2 = regex._`
+    \#
+    \ # a literal space
+    \`
+    \$\{
+`
+assertEquals(escapedRe2, /# `\$\{/)
+assertMatch('# `${', escapedRe2)
+```
+
+Interpolated arrays are automatically converted to non-capturing groups, sorted by from longest to shortest. Duplicate values, `false`, and nullish values are removed.
+
+```ts
+const withArray = regex.v`
+    ${['aa', 'bbb', '.', false, null, undefined]}
+`
+assertEquals(withArray, /(?:bbb|aa|\.)/v)
 ```
 
 If you want to interpolate a string you want to be interpreted as raw regex source fragment, you'll need to wrap it in a `RegexFragment` first.
@@ -112,15 +126,6 @@ const success = regex.v`^a${new RegexFragment('{3}')}$`
 
 assertEquals(success, expected)
 assertMatch('aaa', success)
-```
-
-Interpolated arrays are automatically converted to non-capturing groups, sorted by length. Duplicate values, `false`, and nullish values are removed.
-
-```ts
-const withArray = regex.v`
-    ${['aa', 'bbb', '.', new RegexFragment('.'), /./, false, null, undefined]}
-`
-assertEquals(withArray, /(?:bbb|aa|\.|.)/v)
 ```
 
 ---
